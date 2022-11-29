@@ -12,7 +12,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -o ./app ./src/main.go
+RUN go build -o ./app ./core/main.go
 
 FROM alpine:latest
 
