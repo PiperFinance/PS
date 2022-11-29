@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/eko/gocache/v3/store"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"portfolio/core/configs"
 	balances "portfolio/core/utils"
 	"time"
+
+	"github.com/eko/gocache/v3/store"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // func main() {
@@ -43,9 +44,9 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 
-	router.GET("/balance", getAddressBalance)
-	router.GET("/tokens", getTokenList)
-	router.GET("/chain", getTokenList)
+	router.GET("api/balance", getAddressBalance)
+	router.GET("api/tokens", getTokenList)
+	router.GET("api/chain", getTokenList)
 
 	router.Run(fmt.Sprintf("localhost:%s", configs.GetAppPort()))
 }
