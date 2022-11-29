@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  portfolio:
+    hostname: portfolio
+    container_name: portfolio
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - 8765:8765
+    restart: always
+    environment:
+      - PORT=8765
