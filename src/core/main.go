@@ -23,6 +23,8 @@ import (
 // }
 
 func init() {
+	fmt.Println("InitingApp")
+
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
 	//file, _ := os.OpenFile("main.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -41,6 +43,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println("StartingApp")
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 
