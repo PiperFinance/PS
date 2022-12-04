@@ -1,68 +1,112 @@
 package configs
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"portfolio/core/schema"
 	"sync"
 )
 
 var (
-	onceTokenAddress sync.Once
-	onceForMap       sync.Once
-	once             sync.Once
-	tokens           []schema.Token
-	tokensAddress    []common.Address
-	tokenChainMap    = make(map[schema.ChainId][]*schema.Token, 10)
+	//onceTokenAddress sync.Once
+	//tokensAddress    []common.Address
+
+	onceForChainTokens sync.Once
+	//tokens          []schema.Token
+	// CD chain Tokens URL
+	chainTokens          []schema.ChainToken
+	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
+	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
+	//tokenChainMap = make(map[schema.ChainId][]*schema.Token, 10)
 )
 
-func GetTokens() []schema.Token {
-	once.Do(func() {
+func init() {
+	//onceForChainMap.Do(func() {
+	//	// Load Tokens Chain Mapping
+	//	jsonFileMap, err := os.Open("core/data/tokensChainMap.json")
+	//	defer func(jsonFileMap *os.File) {
+	//		err := jsonFileMap.Close()
+	//		if err != nil {
+	//			log.Error(err)
+	//		}
+	//	}(jsonFileMap)
+	//	if err != nil {
+	//		log.Fatalf("TokenLoader: %s", err)
+	//	}
+	//	byteValueMap, _ := ioutil.ReadAll(jsonFileMap)
+	//	err = json.Unmarshal(byteValueMap, &tokenChainMap)
+	//	if err != nil {
+	//		log.Fatalf("TokenLoader: %s", err)
+	//	}
+	//})chainTokensUrl
+
+	onceForChainTokens.Do(func() {
 		// Load Tokens ...
-		jsonFile, err := os.Open("core/data/tokens.json")
-		defer jsonFile.Close()
-		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
+		// TODO READ FROM ENV
+		tokensDir := "core/data/chain_separated_v2.json"
+		chainTokensUrl := "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/chain_separated_v2.json?raw=true"
+		var byteValue []byte
+		if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
+			resp, err := http.Get(chainTokensUrl)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			byteValue, err = ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatalf("HTTPTokenLoader: %s", err)
+			}
+		} else {
+			jsonFile, err := os.Open(tokensDir)
+			defer func(jsonFile *os.File) {
+				err := jsonFile.Close()
+				if err != nil {
+					log.Error(err)
+				}
+			}(jsonFile)
+			if err != nil {
+				log.Fatalf("JSONTokenLoader: %s", err)
+			}
+			byteValue, err = ioutil.ReadAll(jsonFile)
+			if err != nil {
+				log.Fatalf("JSONTokenLoader: %s", err)
+			}
 		}
-		byteValue, err := ioutil.ReadAll(jsonFile)
-		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
-		}
-		err = json.Unmarshal(byteValue, &tokens)
+		err := json.Unmarshal(byteValue, &chainTokens)
 		if err != nil {
 			log.Fatalf("TokenLoader: %s", err)
 		}
 	})
-	return tokens
+
 }
 
-func GetTokensAddress() []common.Address {
-	onceTokenAddress.Do(func() {
-		// Load Tokens ...
-		tokens := GetTokens()
-		for _, t := range tokens {
-			tokensAddress = append(tokensAddress, t.Get())
-		}
-	})
-	return tokensAddress
+func AllChainsTokens() []schema.ChainToken {
+	return chainTokens
 }
 
-func GetChainTokens(id schema.ChainId) []*schema.Token {
-	onceForMap.Do(func() {
-		// Load Tokens Chain Mapping
-		jsonFileMap, err := os.Open("core/data/tokensChainMap.json")
-		defer jsonFileMap.Close()
-		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
+// TokensAddress Results in token object of this token address ...
+func TokensAddress(id schema.ChainId, address common.Address) *schema.Token {
+	for _, chainToken := range chainTokens {
+		if chainToken.ChainId == id {
+			for _, token := range chainToken.Tokens {
+				if token.Address == address {
+					return &token
+				}
+			}
 		}
-		byteValueMap, _ := ioutil.ReadAll(jsonFileMap)
-		err = json.Unmarshal(byteValueMap, &tokenChainMap)
-		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
+	}
+	return nil
+}
+
+func ChainTokens(id schema.ChainId) []schema.Token {
+	for _, chainToken := range chainTokens {
+		if chainToken.ChainId == id {
+			return chainToken.Tokens
 		}
-	})
-	return tokenChainMap[id]
+	}
+	return nil
 }

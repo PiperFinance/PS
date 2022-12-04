@@ -1,12 +1,11 @@
-package balance
+package utils
 
 import (
 	"fmt"
 	"math/big"
-	"portfolio/core/schema"
-	"sort"
-
+	"portfolio/core/configs"
 	Multicall "portfolio/core/contracts/MulticallContract"
+	"portfolio/core/schema"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,31 +17,46 @@ type BalanceCall struct {
 	walletAddress common.Address
 }
 
-const BALANCE_OF_FUNC = "70a08231"
+type IndexedCall struct {
+	index uint64
+	call  Multicall.Multicall3Call3
+}
 
+const BALANCE_OF_FUNC = "70a08231"     //	balanceOf(address) ERC20
+const NATIVE_BALANCE_FUNC = "4d2301cc" //getEthBalance(address) multiCall v3
+
+// BalanceOf Uses ERC20 balanceOf
 func BalanceOf(call BalanceCall) Multicall.Multicall3Call3 {
-	// fmt.Println(call.tokenAddress, " - ", call.walletAddress.Hash().String()[2:], "   ")
 	return Multicall.Multicall3Call3{
 		Target:       call.tokenAddress,
 		AllowFailure: true,
 		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", BALANCE_OF_FUNC, call.walletAddress.Hash().String()[2:]))}
 }
 
+// NativeBalance Uses getEthBalance(address) method in multicall contract to get user's native balance
+func NativeBalance(call BalanceCall) Multicall.Multicall3Call3 {
+	return Multicall.Multicall3Call3{
+		Target:       configs.MULTICALL_V3_ADDRESS,
+		AllowFailure: true,
+		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", NATIVE_BALANCE_FUNC, call.walletAddress.Hash().String()[2:]))}
+}
+
+//  Generates calls for given tokens and wallets
 func genGetMultipleBalanceCalls(tokens []common.Address, wallets []common.Address) []Multicall.Multicall3Call3 {
 	res := make([]Multicall.Multicall3Call3, len(wallets)*len(tokens))
 	counter := 0
 	for _, token := range tokens {
 		for _, wallet := range wallets {
-			res[counter] = BalanceOf(BalanceCall{tokenAddress: token, walletAddress: wallet})
+			switch token {
+			case configs.NATIVE_TOKEN_ADDRESS, configs.NULL_TOKEN_ADDRESS:
+				res[counter] = NativeBalance(BalanceCall{tokenAddress: token, walletAddress: wallet})
+			default:
+				res[counter] = BalanceOf(BalanceCall{tokenAddress: token, walletAddress: wallet})
+			}
 			counter++
 		}
 	}
 	return res
-}
-
-type IndexedCall struct {
-	index uint64
-	call  Multicall.Multicall3Call3
 }
 
 func genGetBalanceCalls(tokens []schema.Token, wallet common.Address) []IndexedCall {
@@ -102,12 +116,10 @@ type chunkResult struct {
 	err     any
 }
 
-func GetBalancesFaster(
-	multiCaller Multicall.MulticallCaller,
-	tokens []schema.Token,
-	wallets common.Address) []schema.Token {
+func GetBalancesFaster(multiCaller Multicall.MulticallCaller, tokens []schema.Token, wallets common.Address) []schema.TokenBalance {
 
 	allCalls := genGetBalanceCalls(tokens, wallets)
+	tokenBalRes := make([]schema.TokenBalance, 1)
 
 	chunkChannel := make(chan []chunkResult)
 
@@ -120,11 +132,18 @@ func GetBalancesFaster(
 				calls[i] = indexedCall.call
 			}
 			res, err := multiCaller.Aggregate3(&bind.CallOpts{}, calls)
-			parsedRes := make([]chunkResult, len(indexCalls))
-			for i, indexedCall := range indexCalls {
-				parsedRes[i] = chunkResult{indexedCall.index, res[i], err}
+			if err != nil {
+				log.Error(err)
+				chunkChannel <- nil
+			} else {
+
+				parsedRes := make([]chunkResult, len(indexCalls))
+
+				for i, indexedCall := range indexCalls {
+					parsedRes[i] = chunkResult{indexedCall.index, res[i], err}
+				}
+				chunkChannel <- parsedRes
 			}
-			chunkChannel <- parsedRes
 		}(indexCalls, chunkChannel)
 	}
 
@@ -132,6 +151,9 @@ func GetBalancesFaster(
 	for i := 0; i < len(chunkedCalls); i++ {
 
 		_tmp := <-chunkChannel
+		if _tmp == nil {
+			continue
+		}
 		for _, tmp := range _tmp {
 
 			if tmp.callRes.Success {
@@ -152,48 +174,33 @@ func GetBalancesFaster(
 				if tokens[tmp.index].Address == common.HexToAddress("0x34E89740adF97C3A9D3f63Cc2cE4a914382c230b") {
 					log.Warn(z)
 				}
-				decimal := big.NewInt(10)
-				decimal.Exp(decimal, big.NewInt(int64(tokens[tmp.index].Decimals)), nil)
+				_token := tokens[tmp.index]
+				// Token Balance
+				decimal := configs.DecimalPowTen(_token.Decimals)
 				t := new(big.Float).SetInt(z)
 				t = t.Quo(t, new(big.Float).SetInt(decimal))
-				tokens[tmp.index].Balance = *t
-				//tokens[tmp.index].BalanceStr = t.String()
-				//log.Infoln(tokens[tmp.index].Address, tokens[tmp.index].BalanceStr, tmp.callRes.ReturnData)
-				//if balance == float64
-				//ten.Ex
-				//t, ok := t.SetString(string(tmp.callRes.ReturnData))
-				//if !ok {
-				//	panic(tmp.callRes.ReturnData)
-				//}
-				//t.Quo(t,ten)
-				//t, err := strconv.ParseFloat(string(tmp.callRes.ReturnData), 64)
 
-				//if err != nil {
-				//
-				//	log.Fatal(err)
-				//	tokens[tmp.index].Balance = 0.0
-				//} else {
-				//	tokens[tmp.index].Balance = t / float64(10^tokens[tmp.index].Decimals)
-				//}
+				tokenBalRes = append(tokenBalRes, schema.TokenBalance{
+					Token:   _token,
+					Balance: *t,
+					//Value:   *(t.Mul(t, big.NewFloat(_token.Price))),
+				})
 
 			}
 		}
 
 	}
-	sort.Slice(tokens, func(i, j int) bool {
-		//balance := tokens[i].Balance
-		//tokens[j].Balance
-		return tokens[i].Balance.Cmp(&tokens[j].Balance) > 0
-	})
-	ZERO := big.NewFloat(float64(0))
-	firstZeroIndex := 0
-	for i := 0; i < len(tokens); i++ {
-		if tokens[i].Balance.Cmp(ZERO) <= 0 {
-			firstZeroIndex = i
-			break
-		}
-	}
-	return tokens[:firstZeroIndex]
+	return tokenBalRes
+	// Sort Based on balance
+	//ZERO := big.NewFloat(float64(0))
+	//firstZeroIndex := 0
+	//for i := 0; i < len(tokens); i++ {
+	//	if tokens[i].Balance.Cmp(ZERO) <= 0 {
+	//		firstZeroIndex = i
+	//		break
+	//	}
+	//}
+	//return tokens[:firstZeroIndex]
 	//res := make([]big.Int, len(tokens))
 
 	//

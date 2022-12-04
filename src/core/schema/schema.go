@@ -12,7 +12,7 @@ type Decimals int32
 type Price float64
 
 //type Balance big.Float
-type ChainId uint64
+type ChainId int64
 type NetworkId uint64
 type ChainName string
 type NetworkExplorerStandard string
@@ -33,31 +33,65 @@ type ENS struct {
 }
 
 type Network struct {
-	NetworkId `json:"networkId"`
-	ChainId   `json:"ChainId"`
-	Name      ChainName         `json:"name"`
-	Rpc       []RPCUrl          `json:"rpc"`
-	Explorers []NetworkExplorer `json:"explorers"`
-	Faucets   []url.URL         `json:"faucets"`
-	Ens       ENS               `json:"ens"`
+	NativeCurrency struct {
+		Name     string `json:"name"`
+		Symbol   string `json:"symbol"`
+		Decimals int    `json:"decimals"`
+	} `json:"nativeCurrency"`
+	ChainId int    `json:"id"`
+	Name    string `json:"name"`
+	Network string `json:"network"`
+	RpcUrls struct {
+		Infura  string `json:"infura"`
+		Default string `json:"default"`
+		Public  string `json:"public"`
+	} `json:"rpcUrls"`
+	Ens struct {
+		Address string `json:"address"`
+	} `json:"ens"`
+	Multicall struct {
+		Address      string `json:"address"`
+		BlockCreated int    `json:"blockCreated"`
+	} `json:"multicall"`
+	BlockExplorers struct {
+		Default struct {
+			Name string `json:"name"`
+			Url  string `json:"url"`
+		} `json:"default"`
+		Public struct {
+			Name string `json:"name"`
+			Url  string `json:"url"`
+		} `json:"public"`
+	} `json:"blockExplorers"`
+	Testnet bool `json:"testnet"`
 }
 
 type Token struct {
-	ChainId     ChainId        `json:"chainId"`
+	ChainId     `json:"chainId"`
 	Address     common.Address `json:"address"`
 	Name        `json:"name"`
 	Symbol      `json:"symbol"`
 	Decimals    `json:"decimals"`
-	Tags        []string  `json:"tags,omitempty"`
-	CoingeckoId *string   `json:"coingeckoId,omitempty"`
-	ListedIn    []string  `json:"listedIn,omitempty"`
-	Balance     big.Float `json:"balance"`
-	//BalanceStr  string    `json:"BalanceStr"`
+	Tags        []string `json:"tags,omitempty"`
+	CoingeckoId *string  `json:"coingeckoId,omitempty"`
+	ListedIn    []string `json:"listedIn,omitempty"`
+	Price       float64  `json:"price,omitempty"`
+}
+
+type TokenBalance struct {
+	Token   `json:"token"`
+	Balance big.Float `json:"balance"`
+	Value   big.Float `json:"value"`
+}
+
+type ChainToken struct {
+	ChainId `json:"chainId"`
+	Tokens  []Token `json:"tokens"`
 }
 
 type TokenBalanceResponse struct {
-	Tokens     []Token   `json:"name"`
-	Networks   []ChainId `json:"networks"`
+	Tokens     []TokenBalance `json:"tokens"`
+	Networks   []ChainId      `json:"networks"`
 	Symbol     `json:"symbol"`
 	Name       `json:"name"`
 	Price      `json:"price"`
