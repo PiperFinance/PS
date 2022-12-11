@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"portfolio/core/configs"
 	Multicall "portfolio/core/contracts/MulticallContract"
 	"portfolio/core/schema"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -131,7 +133,12 @@ func GetBalancesFaster(multiCaller Multicall.MulticallCaller, tokens []schema.To
 			for i, indexedCall := range indexCalls {
 				calls[i] = indexedCall.call
 			}
-			res, err := multiCaller.Aggregate3(&bind.CallOpts{}, calls)
+
+			contx, cancle := context.WithTimeout(context.Background(), time.Millisecond*2500)
+			defer cancle()
+			callOpts := bind.CallOpts{Context: contx}
+
+			res, err := multiCaller.Aggregate3(&callOpts, calls)
 			if err != nil {
 				log.Error(err)
 				chunkChannel <- nil

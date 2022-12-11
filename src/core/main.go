@@ -81,8 +81,14 @@ type chainBalanceCall struct {
 }
 
 func getAddressBalance(c *gin.Context) {
+
+	_res := make([]schema.TokenBalance, 0)
 	// WALLETS
 	_wallet := c.Query("wallet")
+	if len(_wallet) == 0 {
+		c.IndentedJSON(http.StatusOK, _res)
+		return
+	}
 	walletsQP := common.HexToAddress(_wallet)
 	// Chain
 
@@ -117,7 +123,6 @@ func getAddressBalance(c *gin.Context) {
 	//if err != nil {
 	//	log.Error(err)
 	//}
-	_res := make([]schema.TokenBalance, 0)
 
 	for _ = range configs.ChainIds {
 		tmp := <-chanChainBal
