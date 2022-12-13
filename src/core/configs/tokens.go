@@ -19,31 +19,13 @@ var (
 	onceForChainTokens sync.Once
 	//tokens          []schema.Token
 	// CD chain Tokens URL
-	chainTokens          []schema.ChainToken
+	chainTokens          map[schema.ChainId]schema.TokenMapping
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
 	//tokenChainMap = make(map[schema.ChainId][]*schema.Token, 10)
 )
 
 func init() {
-	//onceForChainMap.Do(func() {
-	//	// Load Tokens Chain Mapping
-	//	jsonFileMap, err := os.Open("core/data/tokensChainMap.json")
-	//	defer func(jsonFileMap *os.File) {
-	//		err := jsonFileMap.Close()
-	//		if err != nil {
-	//			log.Error(err)
-	//		}
-	//	}(jsonFileMap)
-	//	if err != nil {
-	//		log.Fatalf("TokenLoader: %s", err)
-	//	}
-	//	byteValueMap, _ := ioutil.ReadAll(jsonFileMap)
-	//	err = json.Unmarshal(byteValueMap, &tokenChainMap)
-	//	if err != nil {
-	//		log.Fatalf("TokenLoader: %s", err)
-	//	}
-	//})chainTokensUrl
 
 	onceForChainTokens.Do(func() {
 		// Load Tokens ...
