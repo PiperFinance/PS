@@ -27,7 +27,7 @@ type chainBalanceCall struct {
 func init() {
 	fmt.Println("InitingApp")
 
-	BalanceCallOpt = utils.ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 1000}
+	BalanceCallOpt = utils.ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 250}
 
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
@@ -111,7 +111,7 @@ func getAddressBalance(c *gin.Context) {
 			_tokens := configs.ChainTokens(chainId)
 			_multicall := configs.ChainMultiCall(chainId)
 			if _multicall != nil && _tokens != nil {
-				tmp := chainBalanceCall{chainId, utils.GetBalancesFaster(BalanceCallOpt, *_multicall, _tokens, walletsQP)}
+				tmp := chainBalanceCall{chainId, utils.GetBalancesFaster(BalanceCallOpt, chainId, *_multicall, _tokens, walletsQP)}
 				call <- tmp
 				e := time.Now()
 				log.Infof("[%d]Finished chain : %d with %d resutls", e.UnixMilli()-s.UnixMilli(), chainId, len(tmp.tokenBals))

@@ -10,6 +10,7 @@ import (
 	Multicall "portfolio/core/contracts/MulticallContract"
 	"portfolio/core/schema"
 	"sync"
+	"time"
 )
 
 var (
@@ -63,7 +64,9 @@ func init() {
 		}
 	})
 }
-
+func ChainContextTimeOut(id schema.ChainId) time.Duration {
+	return time.Millisecond * 2450
+}
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
 	return multiCallInstances[id]
 }

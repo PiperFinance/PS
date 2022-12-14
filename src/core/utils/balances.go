@@ -10,7 +10,6 @@ import (
 	"portfolio/core/configs"
 	Multicall "portfolio/core/contracts/MulticallContract"
 	"portfolio/core/schema"
-	"time"
 )
 
 type BalanceCall struct {
@@ -88,11 +87,16 @@ func genGetBalanceCalls(tokens schema.TokenMapping, wallet common.Address) []Ind
 // GetBalancesFaster Wallet balance based on given token ( Faster if chunks is used)
 //
 // Does not sort + only respond with tokens with balance
-func GetBalancesFaster(callOpts ChunkedCallOpts, multiCaller Multicall.MulticallCaller, tokens schema.TokenMapping, wallets common.Address) schema.TokenMapping {
+func GetBalancesFaster(
+	callOpts ChunkedCallOpts,
+	id schema.ChainId,
+	multiCaller Multicall.MulticallCaller,
+	tokens schema.TokenMapping,
+	wallets common.Address) schema.TokenMapping {
 
 	tokensRes := make(schema.TokenMapping)
 	allCalls := genGetBalanceCalls(tokens, wallets)
-	chunkedCalls := chunks[IndexedCall](allCalls, 100)
+	chunkedCalls := chunks[IndexedCall](allCalls, callOpts.ChunkSize)
 
 	chunkChannel := make(chan []chunkResult)
 
@@ -104,7 +108,7 @@ func GetBalancesFaster(callOpts ChunkedCallOpts, multiCaller Multicall.Multicall
 				calls[i] = indexedCall.call
 			}
 
-			contx, cancle := context.WithTimeout(context.Background(), time.Millisecond*9500)
+			contx, cancle := context.WithTimeout(context.Background(), configs.ChainContextTimeOut(id))
 			defer cancle()
 			DefaultW3CallOpts := bind.CallOpts{Context: contx}
 
