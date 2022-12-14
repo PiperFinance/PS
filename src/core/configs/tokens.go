@@ -15,13 +15,13 @@ import (
 var (
 	onceForChainTokens sync.Once
 	// CD chain Tokens URL
-	allTokensArray       []schema.Token
-	allTokens            schema.TokenMapping
-	chainTokens          map[schema.ChainId]schema.TokenMapping
+	allTokensArray       = make([]schema.Token, 0)
+	allTokens            = make(schema.TokenMapping)
+	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
-	tokensDir            = "core/data/all_tokens.json"
 	chainTokensUrl       = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
+	tokensDir            = "core/data/all_tokens.json"
 )
 
 func init() {
@@ -60,10 +60,13 @@ func init() {
 			log.Fatalf("TokenLoader: %s", err)
 		}
 		for tokenId, token := range allTokens {
-			chainTokens[schema.ChainId(token.Token.ChainId)][tokenId] = token
+			chainId := token.Detail.ChainId
+			if chainTokens[chainId] == nil {
+				chainTokens[chainId] = make(schema.TokenMapping)
+			}
+			chainTokens[chainId][tokenId] = token
 			allTokensArray = append(allTokensArray, token)
 		}
-
 	})
 
 }
@@ -71,7 +74,14 @@ func init() {
 func AllChainsTokens() schema.TokenMapping {
 	return allTokens
 }
+func AllChainsTokensArray() []schema.Token {
+	return allTokensArray
+}
 
 func ChainTokens(id schema.ChainId) schema.TokenMapping {
 	return chainTokens[id]
 }
+
+//func ChainTokensArray(id schema.ChainId) []schema.Token {
+//	return chainTokens[id]
+//}

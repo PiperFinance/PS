@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	Multicall "portfolio/core/contracts/MulticallContract"
-
 	"portfolio/core/schema"
 	"sync"
 )
@@ -65,26 +64,6 @@ func init() {
 	})
 }
 
-func EthClient(id schema.ChainId) *ethclient.Client {
-	// TODO make it multi chain
-	//onceForEthClient.Do(func() {
-	//	client, err := ethclient.Dial("https://cloudflare-eth.com")
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	gethClients[1] = client
-	//})
-	return gethClients[id]
-}
-
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
-	// TODO make it multi chain
-	//onceForMultiCall.Do(func() {
-	//	contractInstance, err := Multicall.NewMulticallCaller(MULTICALL_V3_ADDRESS, EthClient(1))
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	multiCallInstances[1] = contractInstance
-	//})
 	return multiCallInstances[id]
 }

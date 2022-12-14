@@ -13,11 +13,11 @@ import (
 
 var (
 	onceForChainPairs sync.Once
-	allPairs          schema.TokenMapping
-	chainPairs        map[schema.ChainId]schema.TokenMapping
-	allPairsArray     []schema.Token
+	allPairs          = make(schema.PairMapping)
+	chainPairs        = make(map[schema.ChainId]schema.PairMapping)
+	allPairsArray     = make([]schema.Pair, 0)
 	chainPairsUrl     = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
-	pairsDir          = "core/data/all_tokens.json"
+	pairsDir          = "core/data/all_pairs.json"
 )
 
 func init() {
@@ -33,10 +33,10 @@ func init() {
 			}
 			byteValue, err = ioutil.ReadAll(resp.Body)
 			if err != nil {
-				log.Fatalf("HTTPTokenLoader: %s", err)
+				log.Fatalf("HTTPPairLoader: %s", err)
 			}
 		} else {
-			jsonFile, err := os.Open(tokensDir)
+			jsonFile, err := os.Open(pairsDir)
 			defer func(jsonFile *os.File) {
 				err := jsonFile.Close()
 				if err != nil {
@@ -44,30 +44,42 @@ func init() {
 				}
 			}(jsonFile)
 			if err != nil {
-				log.Fatalf("JSONTokenLoader: %s", err)
+				log.Fatalf("JSONPairLoader: %s", err)
 			}
 			byteValue, err = ioutil.ReadAll(jsonFile)
 			if err != nil {
-				log.Fatalf("JSONTokenLoader: %s", err)
+				log.Fatalf("JSONPairLoader: %s", err)
 			}
 		}
-		err := json.Unmarshal(byteValue, &allTokens)
+		err := json.Unmarshal(byteValue, &allPairs)
 		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
+			log.Fatalf("PairLoader: %s", err)
 		}
-		for tokenId, token := range allTokens {
-			chainTokens[schema.ChainId(token.Token.ChainId)][tokenId] = token
-			allTokensArray = append(allTokensArray, token)
+
+		for pairId, pair := range allPairs {
+			chainId := pair.Detail.ChainId
+			if chainPairs[chainId] == nil {
+				chainPairs[chainId] = make(schema.PairMapping)
+			}
+			chainPairs[chainId][pairId] = pair
+			allPairsArray = append(allPairsArray, pair)
 		}
 
 	})
 
 }
 
-func AllChainsTokens() schema.TokenMapping {
+func AllChainsPairs() schema.TokenMapping {
 	return allTokens
 }
 
-func ChainTokens(id schema.ChainId) schema.TokenMapping {
+func AllChainsPairsArray() schema.TokenMapping {
+	return allTokens
+}
+
+func ChainPairs(id schema.ChainId) schema.TokenMapping {
+	return chainTokens[id]
+}
+func ChainPairsArray(id schema.ChainId) schema.TokenMapping {
 	return chainTokens[id]
 }

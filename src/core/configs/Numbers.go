@@ -15,7 +15,7 @@ func ZERO() *big.Int {
 	return big.NewInt(0)
 }
 func ONE() *big.Int {
-	return big.NewInt(0)
+	return big.NewInt(1)
 }
 
 func init() {

@@ -5,10 +5,10 @@ import (
 	"math/big"
 )
 
-type ChainToken struct {
-	ChainId `json:"chainId"`
-	Tokens  []Token `json:"tokens"`
-}
+//type ChainToken struct {
+//	ChainId `json:"chainId"`
+//	Tokens  []Token `json:"tokens"`
+//}
 
 type TokenBalanceResponse struct {
 	Tokens     []Token   `json:"tokens"`

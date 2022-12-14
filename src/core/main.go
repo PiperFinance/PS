@@ -1,23 +1,33 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"github.com/eko/gocache/v3/store"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"portfolio/core/configs"
+	"portfolio/core/filters"
 	"portfolio/core/schema"
 	"portfolio/core/utils"
 	"strconv"
 	"time"
 )
 
+var (
+	BalanceCallOpt utils.ChunkedCallOpts
+)
+
+type chainBalanceCall struct {
+	chainId   schema.ChainId
+	tokenBals schema.TokenMapping
+}
+
 func init() {
 	fmt.Println("InitingApp")
+
+	BalanceCallOpt = utils.ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 1000}
 
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
@@ -34,6 +44,7 @@ func init() {
 
 	// Only log the warning severity or above.
 	log.SetLevel(log.DebugLevel)
+	_ = BalanceCallOpt
 }
 
 func main() {
@@ -41,14 +52,14 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 
-	///// 1 / balances
-	///// 137 / balances
-	router.GET(":chainId/balance", getAddressChainBalance)
 	//// / balances
-	router.GET("balance", getAddressBalance)
-
 	router.GET("tokens", allTokens)
 	router.GET(":chainId/tokens", chainTokens)
+	router.GET("tokens/balance", getAddressBalance)
+	//// / balances
+	router.GET("pairs/balance", getAddressBalance)
+
+	router.GET("pair", allPairs)
 
 	router.GET("chain", allChains)
 
@@ -65,9 +76,12 @@ func allChains(c *gin.Context) {
 func allTokens(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, configs.AllChainsTokens())
 }
+func allPairs(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, configs.AllChainsPairs())
+}
 
 func chainTokens(c *gin.Context) {
-	_chainId, err := strconv.ParseInt(c.Param("chainId"), 10, 32)
+	_chainId, err := strconv.ParseInt(c.Query("chainId"), 10, 32)
 	if err != nil {
 		log.Error(err)
 	}
@@ -75,14 +89,10 @@ func chainTokens(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, configs.ChainTokens(chainId))
 }
 
-type chainBalanceCall struct {
-	chainId   schema.ChainId
-	tokenBals []schema.TokenBalance
-}
-
 func getAddressBalance(c *gin.Context) {
 
-	_res := make([]schema.TokenBalance, 0)
+	_res := make(map[schema.ChainId]schema.TokenMapping)
+
 	// WALLETS
 	_wallet := c.Query("wallet")
 	if len(_wallet) == 0 {
@@ -90,26 +100,18 @@ func getAddressBalance(c *gin.Context) {
 		return
 	}
 	walletsQP := common.HexToAddress(_wallet)
-	// Chain
 
-	// Get from cache
-	cachedResult, _ := configs.Cache().Get(context.Background(), fmt.Sprintf("W:%s", _wallet))
-	if cachedResult != nil {
-		c.IndentedJSON(http.StatusOK, cachedResult)
-		return
-	}
 	chanChainBal := make(chan chainBalanceCall)
-	for _, chainId := range configs.ChainIds {
+	chainIds := filters.QueryChainIds(c)
+
+	for _, chainId := range chainIds {
 		go func(chainId schema.ChainId, call chan chainBalanceCall) {
 			log.Infof("Getting chain : %d ", chainId)
 			s := time.Now()
 			_tokens := configs.ChainTokens(chainId)
 			_multicall := configs.ChainMultiCall(chainId)
-			//tmp := chainBalanceCall{chainId: chainId, tokenBals: nil}
 			if _multicall != nil && _tokens != nil {
-				tmp := chainBalanceCall{chainId, utils.GetBalancesFaster(
-					*_multicall, _tokens, walletsQP,
-				)}
+				tmp := chainBalanceCall{chainId, utils.GetBalancesFaster(BalanceCallOpt, *_multicall, _tokens, walletsQP)}
 				call <- tmp
 				e := time.Now()
 				log.Infof("[%d]Finished chain : %d with %d resutls", e.UnixMilli()-s.UnixMilli(), chainId, len(tmp.tokenBals))
@@ -119,62 +121,11 @@ func getAddressBalance(c *gin.Context) {
 		}(chainId, chanChainBal)
 	}
 
-	//err := configs.Cache().Set(context.Background(), _res, store.WithExpiration(10*time.Second))
-	//if err != nil {
-	//	log.Error(err)
-	//}
-
-	for _ = range configs.ChainIds {
+	for _ = range chainIds {
 		tmp := <-chanChainBal
-		if tmp.tokenBals != nil {
-			//_res[i] = tmp
-			//s, err := json.Marshal(tmp)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//fmt.Println(tmp)
-			for _, tb := range tmp.tokenBals {
-				if tb.ChainId == 0 {
-					continue
-				}
-				_res = append(_res, tb)
-			}
+		if len(tmp.tokenBals) > 0 {
+			_res[tmp.chainId] = tmp.tokenBals
 		}
-	}
-	c.IndentedJSON(http.StatusOK, _res)
-	//c.Data(http.StatusOK, "application/json", )
-	//fmt.Println()
-}
-
-func getAddressChainBalance(c *gin.Context) {
-	//
-
-	// WALLETS
-	_wallet := c.Query("wallet")
-	walletsQP := common.HexToAddress(_wallet)
-	// Chain
-	_chainId, err := strconv.ParseInt(c.Param("chainId"), 10, 64)
-	if err != nil {
-		log.Error(err)
-	}
-	chainId := schema.ChainId(_chainId)
-
-	// Get from cache
-	cachedResult, _ := configs.Cache().Get(context.Background(), fmt.Sprintf("W:%s", _wallet))
-	if cachedResult != nil {
-		c.IndentedJSON(http.StatusOK, cachedResult)
-		return
-	}
-
-	// TOKENS
-	//_tokens := configs.TokensAddress()
-	_res := utils.GetBalancesFaster(
-		*configs.ChainMultiCall(1), configs.ChainTokens(chainId), walletsQP,
-	)
-
-	err = configs.Cache().Set(context.Background(), _res, store.WithExpiration(10*time.Second))
-	if err != nil {
-		log.Error(err)
 	}
 	c.IndentedJSON(http.StatusOK, _res)
 }
