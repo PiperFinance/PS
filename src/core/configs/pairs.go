@@ -3,7 +3,6 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
@@ -13,25 +12,22 @@ import (
 )
 
 var (
-	onceForChainTokens sync.Once
-	// CD chain Tokens URL
-	allTokensArray       []schema.Token
-	allTokens            schema.TokenMapping
-	chainTokens          map[schema.ChainId]schema.TokenMapping
-	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
-	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
-	tokensDir            = "core/data/all_tokens.json"
-	chainTokensUrl       = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
+	onceForChainPairs sync.Once
+	allPairs          schema.TokenMapping
+	chainPairs        map[schema.ChainId]schema.TokenMapping
+	allPairsArray     []schema.Token
+	chainPairsUrl     = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
+	pairsDir          = "core/data/all_tokens.json"
 )
 
 func init() {
 
-	onceForChainTokens.Do(func() {
+	onceForChainPairs.Do(func() {
 		// Load Tokens ...
 		// TODO READ FROM ENV
 		var byteValue []byte
-		if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
-			resp, err := http.Get(chainTokensUrl)
+		if _, err := os.Stat(pairsDir); errors.Is(err, os.ErrNotExist) {
+			resp, err := http.Get(chainPairsUrl)
 			if err != nil {
 				log.Fatalln(err)
 			}
