@@ -1,6 +1,6 @@
 package utils
 
-func chunks[T any](array []T, chunkSize int) [][]T {
+func Chunks[T any](array []T, chunkSize int) [][]T {
 	steps := len(array) / chunkSize
 
 	c := make([][]T, chunkSize)

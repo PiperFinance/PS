@@ -2,8 +2,7 @@ package filters
 
 import (
 	"github.com/gin-gonic/gin"
-	"portfolio/core/configs"
-	"portfolio/core/schema"
+	"portfolio/schema"
 	"strconv"
 )
 
@@ -17,7 +16,7 @@ func QueryChainIds(c *gin.Context) []schema.ChainId {
 		}
 		return chainIds
 	} else {
-		return configs.ChainIds
+		return make([]schema.ChainId, 0)
 	}
 
 }

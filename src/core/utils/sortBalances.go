@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"portfolio/core/schema"
+	"portfolio/schema"
 	"sort"
 )
 

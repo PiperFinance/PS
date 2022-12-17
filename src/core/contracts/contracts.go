@@ -1,5 +1,0 @@
-package contracts
-
-func MultiCallFunc() {
-
-}
