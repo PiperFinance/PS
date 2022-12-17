@@ -29,3 +29,5 @@ type ArrayOfAddress struct {
 func (t Wallet) Get() common.Address {
 	return t.Address
 }
+
+////////////////////////////////////

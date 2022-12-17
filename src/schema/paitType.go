@@ -1,15 +1,18 @@
 package schema
 
-import "math/big"
+import (
+	"github.com/ethereum/go-ethereum/common"
+	"math/big"
+)
 
-type PairId uint32
+type PairId Id
 
 type PairDet struct {
 	Tokens      map[TokenId]Token `json:"tokens"`
 	TokensOrder []TokenId         `json:"tokensOrder"`
 	Decimals    Decimals          `json:"decimals"`
 	ChainId     ChainId           `json:"chainId"`
-	Address     string            `json:"address"`
+	Address     common.Address    `json:"address"`
 	Symbol      string            `json:"symbol"`
 	Name        string            `json:"name"`
 	Dex         string            `json:"dex"`
@@ -20,9 +23,11 @@ type Pair struct {
 	Detail PairDet `json:"detail"`
 	//Reserves    []big.Int `json:"reserves"`
 	//TotalSupply big.Int   `json:"totalSupply"`
-	PriceUSD Price     `json:"priceUSD"`
-	Balance  big.Int   `json:"balance"`
-	Value    big.Float `json:"value"`
+	PriceUSD   float64   `json:"priceUSD"`
+	Balance    big.Float `json:"-"`
+	Value      big.Float `json:"-"`
+	BalanceStr string    `json:"balance"`
+	ValueStr   string    `json:"value"`
 }
 
 type PairMapping map[PairId]Pair

@@ -10,8 +10,9 @@ import (
 
 type chunkCall[T any] struct {
 	// Call Detail
+	schema.Id
 	schema.ChainId
-	schema.TokenId
+	//schema.TokenId
 	// Call Itself
 	Call Multicall.Multicall3Call3
 	// Call Result
@@ -28,8 +29,8 @@ type ChunkedCallOpts struct {
 }
 
 type BalanceCall struct {
-	tokenAddress  common.Address
-	walletAddress common.Address
+	contractAddress common.Address
+	walletAddress   common.Address
 }
 
 type BalanceValue struct {

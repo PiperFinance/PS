@@ -69,17 +69,17 @@ func init() {
 
 }
 
-func AllChainsPairs() schema.TokenMapping {
-	return allTokens
+func AllChainsPairs() schema.PairMapping {
+	return allPairs
 }
 
-func AllChainsPairsArray() schema.TokenMapping {
-	return allTokens
+func AllChainsPairsArray() schema.PairMapping {
+	return allPairs
 }
 
-func ChainPairs(id schema.ChainId) schema.TokenMapping {
-	return chainTokens[id]
+func ChainPairs(id schema.ChainId) schema.PairMapping {
+	return chainPairs[id]
 }
-func ChainPairsArray(id schema.ChainId) schema.TokenMapping {
-	return chainTokens[id]
+func ChainPairsArray(id schema.ChainId) schema.PairMapping {
+	return chainPairs[id]
 }
