@@ -5,7 +5,7 @@ services:
     hostname: portfolio
     container_name: portfolio
     build:
-      context: ./src
+      context: .
       dockerfile: Dockerfile
     restart: always
     ports:
