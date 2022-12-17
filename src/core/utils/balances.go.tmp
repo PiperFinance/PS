@@ -1,0 +1,55 @@
+package utils
+
+import (
+	"context"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	log "github.com/sirupsen/logrus"
+	configs2 "portfolio/configs"
+	"portfolio/contracts/MulticallContract"
+	schema2 "portfolio/schema"
+)
+
+// GetBalancesFaster Wallet balance based on given token ( Faster if chunks is used)
+// Does not sort + only respond with tokens with balance
+func GetBalancesFaster(
+	callOpts ChunkedCallOpts,
+	id schema2.ChainId,
+	multiCaller Multicall.MulticallCaller,
+	tokens schema2.TokenMapping,
+	wallets common.Address,
+	chunkChannel chan []chunkResult) int64 {
+
+	allCalls := genGetBalanceCalls(tokens, wallets)
+	chunkedCalls := chunks[IndexedCall](allCalls, callOpts.ChunkSize)
+
+	for _, indexCalls := range chunkedCalls {
+
+		go func(indexCalls []IndexedCall, chunkChannel chan []chunkResult) {
+
+			calls := make([]Multicall.Multicall3Call3, len(indexCalls))
+			for i, indexedCall := range indexCalls {
+				calls[i] = indexedCall.call
+			}
+
+			contx, cancle := context.WithTimeout(context.Background(), configs2.ChainContextTimeOut(id))
+			defer cancle()
+			DefaultW3CallOpts := bind.CallOpts{Context: contx}
+
+			res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
+
+			if err != nil {
+				log.Error(err)
+				chunkChannel <- nil
+			} else {
+				parsedRes := make([]chunkResult, len(indexCalls))
+				for i, indexedCall := range indexCalls {
+					parsedRes[i] = chunkResult{id, indexedCall.tokenId, res[i], err}
+				}
+				chunkChannel <- parsedRes
+			}
+		}(indexCalls, chunkChannel)
+	}
+
+	return int64(len(chunkedCalls))
+}
