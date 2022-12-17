@@ -21,7 +21,7 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 RUN mkdir -p /api
 WORKDIR /api
 COPY --from=builder /api/app .
-COPY ./core/data ./core/data
+COPY ./data ./data
 EXPOSE 8080
 
 ENTRYPOINT ["./app"]
