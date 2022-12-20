@@ -20,7 +20,7 @@ var (
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
-	chainTokensUrl       = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
+	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
 )
 
@@ -28,10 +28,9 @@ func init() {
 
 	onceForChainTokens.Do(func() {
 		// Load Tokens ...
-		// TODO READ FROM ENV
 		var byteValue []byte
 		if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
-			resp, err := http.Get(chainTokensUrl)
+			resp, err := http.Get(tokensUrl)
 			if err != nil {
 				log.Fatalln(err)
 			}

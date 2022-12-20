@@ -17,5 +17,4 @@
 .idea/
 .vscode/
 gin-bin
-src/core/data/all_pairs.json
-src/core/data/all_tokens.json
+data/

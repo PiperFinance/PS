@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
-	configs2 "portfolio/configs"
+	"portfolio/configs"
 	"portfolio/core/filters"
 	"portfolio/core/multicaller"
 	"portfolio/schema"
@@ -48,21 +48,21 @@ func main() {
 	router.GET("tokens/balance", getAddressTokensBalance)
 	router.GET("pairs/balance", getAddressPairsBalance)
 
-	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs2.GetAppPort()))
+	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func allChains(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs2.Networks)
+	c.IndentedJSON(http.StatusOK, configs.Networks)
 }
 
 func allTokens(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs2.AllChainsTokens())
+	c.IndentedJSON(http.StatusOK, configs.AllChainsTokens())
 }
 func allPairs(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs2.AllChainsPairs())
+	c.IndentedJSON(http.StatusOK, configs.AllChainsPairs())
 }
 
 func chainTokens(c *gin.Context) {
@@ -71,7 +71,7 @@ func chainTokens(c *gin.Context) {
 		log.Error(err)
 	}
 	chainId := schema.ChainId(_chainId)
-	c.IndentedJSON(http.StatusOK, configs2.ChainTokens(chainId))
+	c.IndentedJSON(http.StatusOK, configs.ChainTokens(chainId))
 }
 
 func getAddressTokensBalance(c *gin.Context) {

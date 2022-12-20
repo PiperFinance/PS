@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-type TokenId uint32
+type TokenId Id
 
 type TokenDet struct {
 	ChainId     ChainId        `json:"chainId"`

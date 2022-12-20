@@ -16,18 +16,17 @@ var (
 	allPairs          = make(schema.PairMapping)
 	chainPairs        = make(map[schema.ChainId]schema.PairMapping)
 	allPairsArray     = make([]schema.Pair, 0)
-	chainPairsUrl     = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
+	pairsUrl          = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
 	pairsDir          = "data/all_pairs.json"
 )
 
 func init() {
 
 	onceForChainPairs.Do(func() {
-		// Load Tokens ...
-		// TODO READ FROM ENV
+		// Load Pairs ...
 		var byteValue []byte
 		if _, err := os.Stat(pairsDir); errors.Is(err, os.ErrNotExist) {
-			resp, err := http.Get(chainPairsUrl)
+			resp, err := http.Get(pairsUrl)
 			if err != nil {
 				log.Fatalln(err)
 			}
