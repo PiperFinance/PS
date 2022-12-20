@@ -30,7 +30,8 @@ func NativeBalance(call BalanceCall) Multicall.Multicall3Call3 {
 
 func ParseBalanceCallResult(result []byte) *big.Int {
 	z := configs.ZERO()
-	z.SetBytes(result)
+	//z.SetBytes(result)
+	z.SetBytes(result[:32])
 	if z.Cmp(configs.ZERO()) <= 0 {
 		return nil
 	} else {
