@@ -3,13 +3,14 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"portfolio/schema"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/common"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -78,7 +79,12 @@ func AllChainsTokensArray() []schema.Token {
 }
 
 func ChainTokens(id schema.ChainId) schema.TokenMapping {
-	return chainTokens[id]
+
+	t := chainTokens[id]
+	// if t == nil {
+
+	// }
+	return t
 }
 
 //func ChainTokensArray(id schema.ChainId) []schema.Token {

@@ -2,11 +2,12 @@ package multicaller
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const BALANCE_OF_FUNC = "70a08231"     //	balanceOf(address) ERC20
@@ -30,9 +31,12 @@ func NativeBalance(call BalanceCall) Multicall.Multicall3Call3 {
 
 func ParseBalanceCallResult(result []byte) *big.Int {
 	z := configs.ZERO()
-	//z.SetBytes(result)
-	z.SetBytes(result[:32])
-	if z.Cmp(configs.ZERO()) <= 0 {
+	if len(result) > 32 {
+		z.SetBytes(result[:32])
+	} else {
+		z.SetBytes(result)
+	}
+	if z.Cmp(configs.MIN_BALANCE()) <= 0 {
 		return nil
 	} else {
 		return z
