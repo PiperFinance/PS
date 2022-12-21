@@ -18,6 +18,8 @@ func ONE() *big.Int {
 	return big.NewInt(1)
 }
 
+func MI
+
 func init() {
 	//_, _, _ = TEN, EIGHT, ZERO
 }
