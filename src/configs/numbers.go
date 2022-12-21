@@ -18,7 +18,11 @@ func ONE() *big.Int {
 	return big.NewInt(1)
 }
 
-func MI
+func MIN_BALANCE() *big.Int {
+	// NOTE - Change this if you can't see your balance
+	// This is without decimals
+	return big.NewInt(100)
+}
 
 func init() {
 	//_, _, _ = TEN, EIGHT, ZERO

@@ -36,7 +36,7 @@ func ParseBalanceCallResult(result []byte) *big.Int {
 	} else {
 		z.SetBytes(result)
 	}
-	if z.Cmp(configs.ZERO()) <= 0 {
+	if z.Cmp(configs.MIN_BALANCE()) <= 0 {
 		return nil
 	} else {
 		return z

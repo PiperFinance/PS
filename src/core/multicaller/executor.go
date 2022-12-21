@@ -29,10 +29,6 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 		for i, _res := range res {
 			chunkedCalls[i].CallRes = _res
 			if _res.Success {
-				//add := common.HexToAddress("0x97dec872013f6b5fb443861090ad931542878126")
-				//if configs.ChainTokens(chunkedCalls[i].ChainId)[schema.TokenId(chunkedCalls[i].Id)].Detail.Address == add {
-				//	fmt.Println(chunkedCalls[i].ResultParser(_res.ReturnData[:32]))
-				//}
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
