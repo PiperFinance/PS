@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -38,6 +39,10 @@ func main() {
 	fmt.Println("StartingApp")
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	config.AllowAllOrigins = true
+	router.Use(cors.New(config))
 
 	//// / info
 	router.GET("pair", allPairs)
