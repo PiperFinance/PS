@@ -1,7 +1,6 @@
 package multicaller
 
 import (
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"math/big"
@@ -27,24 +26,37 @@ func getPairBalances(
 	id schema.ChainId,
 	multiCaller Multicall.MulticallCaller,
 	pairs schema.PairMapping,
-	wallets common.Address,
+	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
-	allCalls := genPairBalanceCalls(pairs, wallets)
+	allCalls := genPairBalanceCalls(pairs, wallet)
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
-	for _, indexCalls := range chunkedCalls {
-		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
+	for i, indexCalls := range chunkedCalls {
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
+			go func() {
+				chunkedResultChannel <- cachedChunkCalls.Value()
+			}()
+		} else {
+			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+		}
 	}
 
 	return uint64(len(chunkedCalls))
 }
 
-func balancePairResultParser(result map[schema.ChainId]schema.PairMapping, chunk []ChunkCall[*big.Int]) {
+func balancePairResultParser(wallet common.Address, result map[schema.ChainId]schema.PairMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
+		// In case error occurred at rpc level
 		if call.Err != nil {
-			// TODO
-			fmt.Println(call.Err)
+			cachedCall := ChunkCallCache.Get(ChunkCallCacheKey{wallet, call.Id})
+			if cachedCall == nil || cachedCall.IsExpired() {
+				continue
+			}
+			call = cachedCall.Value()
+		} else {
+			ChunkCallCache.Set(ChunkCallCacheKey{wallet, call.Id}, call, ChunkCallCacheTTL)
 		}
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
 			continue
@@ -109,7 +121,7 @@ func GetChainsPairBalances(
 			totalChunkCount--
 		}
 
-		balancePairResultParser(_res, chunkCalls)
+		balancePairResultParser(wallet, _res, chunkCalls)
 
 		if totalChunkCount == 0 {
 			break

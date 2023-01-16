@@ -12,13 +12,31 @@ type ChunkCallCacheKey struct {
 	Wallet common.Address
 	schema.Id
 }
+type ChunkCallsCacheKey struct {
+	Wallet common.Address
+	schema.ChainId
+	chunkIndex int
+}
 
 var (
 	ChunkCallCacheTTL = 15 * time.Second
 	ChunkCallCache    = ttlcache.New[ChunkCallCacheKey, ChunkCall[*big.Int]](
 		ttlcache.WithTTL[ChunkCallCacheKey, ChunkCall[*big.Int]](ChunkCallCacheTTL),
 	)
-	FailedChunkCallCache = ttlcache.New[ChunkCallCacheKey, ChunkCall[*big.Int]](
-		ttlcache.WithTTL[ChunkCallCacheKey, ChunkCall[*big.Int]](ChunkCallCacheTTL),
+	//
+	//ChunkCallsCache =
+	// True For OK , False For Failed
+	ChunkCallsCache = ttlcache.New[ChunkCallsCacheKey, []ChunkCall[*big.Int]](
+		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](ChunkCallCacheTTL),
 	)
 )
+
+//func ChunkCallsCache[T comparable]() {
+//	switch T.(type) {
+//	case big.Int:
+//
+//	}
+//	ttlcache.New[ChunkCallsCacheKey, []ChunkCall[T]](
+//		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[T]](ChunkCallCacheTTL),
+//	)
+//}

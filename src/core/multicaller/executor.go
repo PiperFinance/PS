@@ -3,13 +3,15 @@ package multicaller
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
+	"math/big"
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
 )
 
-func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[T], chunkChannel chan []ChunkCall[T]) {
+func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int]) {
 
 	calls := make([]Multicall.Multicall3Call3, len(chunkedCalls))
 	for i, indexedCall := range chunkedCalls {
@@ -34,6 +36,7 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
+		ChunkCallsCache.Set(ChunkCallsCacheKey{wallet, id, chunkIndex}, chunkedCalls, ChunkCallCacheTTL)
 	}
 	chunkChannel <- chunkedCalls
 }

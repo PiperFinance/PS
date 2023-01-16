@@ -26,14 +26,21 @@ func getTokenBalances(
 	id schema.ChainId,
 	multiCaller Multicall.MulticallCaller,
 	tokens schema.TokenMapping,
-	wallets common.Address,
+	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
-	allCalls := genTokenBalanceCalls(tokens, wallets)
+	allCalls := genTokenBalanceCalls(tokens, wallet)
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
-	for _, indexCalls := range chunkedCalls {
-		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
+	for i, indexCalls := range chunkedCalls {
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
+			go func() {
+				chunkedResultChannel <- cachedChunkCalls.Value()
+			}()
+		} else {
+			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+		}
 	}
 
 	return uint64(len(chunkedCalls))
@@ -44,11 +51,7 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 
 		// In case error occurred at rpc level
 		if call.Err != nil {
-			cachedCall := ChunkCallCache.Get(ChunkCallCacheKey{wallet, call.Id})
-			if cachedCall == nil || cachedCall.IsExpired() {
-				continue
-			}
-			call = cachedCall.Value()
+			ChunkCallCache.Delete(ChunkCallCacheKey{wallet, call.Id})
 		} else {
 			ChunkCallCache.Set(ChunkCallCacheKey{wallet, call.Id}, call, ChunkCallCacheTTL)
 		}
@@ -108,15 +111,14 @@ func GetChainsTokenBalances(
 			&totalChunkCount,
 			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel))
 	}
-
+	if totalChunkCount == 0 {
+		return _res
+	}
 	for chunkCalls := range chunkedResultChannel {
-		//tmp := <-chunkedResultChannel
 		if totalChunkCount > 0 {
 			totalChunkCount--
 		}
-
 		balanceTokenResultParser(wallet, _res, chunkCalls)
-
 		if totalChunkCount == 0 {
 			break
 		}
