@@ -9,7 +9,7 @@ import (
 	"portfolio/schema"
 )
 
-func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, chunkedCalls []chunkCall[T], chunkChannel chan []chunkCall[T]) {
+func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[T], chunkChannel chan []ChunkCall[T]) {
 
 	calls := make([]Multicall.Multicall3Call3, len(chunkedCalls))
 	for i, indexedCall := range chunkedCalls {
@@ -24,7 +24,9 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 
 	if err != nil {
 		log.Error(err)
-		chunkChannel <- nil
+		for i, _ := range chunkedCalls {
+			chunkedCalls[i].Err = err
+		}
 	} else {
 		for i, _res := range res {
 			chunkedCalls[i].CallRes = _res
@@ -32,6 +34,6 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
-		chunkChannel <- chunkedCalls
 	}
+	chunkChannel <- chunkedCalls
 }

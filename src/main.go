@@ -40,16 +40,15 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
 	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
 
-	//// / info
+	//// info
 	router.GET("pair", allPairs)
 	router.GET("chain", allChains)
 	router.GET("tokens", allTokens)
 	router.GET(":chainId/tokens", chainTokens)
-	//// / balances
+	//// balances
 	router.GET("tokens/balance", getAddressTokensBalance)
 	router.GET("pairs/balance", getAddressPairsBalance)
 

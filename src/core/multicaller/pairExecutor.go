@@ -1,6 +1,7 @@
 package multicaller
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"math/big"
@@ -27,10 +28,10 @@ func getPairBalances(
 	multiCaller Multicall.MulticallCaller,
 	pairs schema.PairMapping,
 	wallets common.Address,
-	chunkedResultChannel chan []chunkCall[*big.Int]) uint64 {
+	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
 	allCalls := genPairBalanceCalls(pairs, wallets)
-	chunkedCalls := utils.Chunks[chunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
+	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
 	for _, indexCalls := range chunkedCalls {
 		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
@@ -39,9 +40,12 @@ func getPairBalances(
 	return uint64(len(chunkedCalls))
 }
 
-func balancePairResultParser(result map[schema.ChainId]schema.PairMapping, chunk []chunkCall[*big.Int]) {
+func balancePairResultParser(result map[schema.ChainId]schema.PairMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
-
+		if call.Err != nil {
+			// TODO
+			fmt.Println(call.Err)
+		}
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
 			continue
 		}
@@ -81,7 +85,7 @@ func GetChainsPairBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address) map[schema.ChainId]schema.PairMapping {
 
-	chunkedResultChannel := make(chan []chunkCall[*big.Int])
+	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.PairMapping)
 
 	var totalChunkCount uint64

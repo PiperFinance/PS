@@ -6,6 +6,7 @@ import (
 	"github.com/eko/gocache/v3/cache"
 	"github.com/eko/gocache/v3/store"
 	"github.com/go-redis/redis/v8"
+	"github.com/jellydator/ttlcache/v3"
 	gocache "github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	//"log"
@@ -16,14 +17,17 @@ import (
 )
 
 var (
-	//cacheManager *cache.Cache[any]
-	onceForCache sync.Once
+	//CacheManager *cache.Cache[any]
+	onceForGoCache sync.Once
+	CacheManager   *cache.ChainCache[any]
+	TTLCache       = ttlcache.New[string, string](
+		ttlcache.WithTTL[string, string](15 * time.Second),
+	)
 )
 
-var cacheManager *cache.ChainCache[any]
+func init() {
 
-func Cache() *cache.ChainCache[any] {
-	onceForCache.Do(func() {
+	onceForGoCache.Do(func() {
 
 		REDIS_URL, ok := os.LookupEnv("REDIS_URL")
 		if !ok {
@@ -41,27 +45,26 @@ func Cache() *cache.ChainCache[any] {
 		redisClient := redis.NewClient(redisOption)
 		if err := redisClient.Ping(ctx); err != nil {
 			log.Error(err)
-			cacheManager = cache.NewChain[any](
+			CacheManager = cache.NewChain[any](
 				cache.New[any](gocacheStore),
 			)
 		} else {
 			redisStore := store.NewRedis(redisClient, nil)
-			cacheManager = cache.NewChain[any](
+			CacheManager = cache.NewChain[any](
 				cache.New[any](gocacheStore),
 				cache.New[any](redisStore),
 			)
 		}
 
-		err = cacheManager.Set(ctx, "Connected", "YES", store.WithExpiration(15*time.Second))
+		err = CacheManager.Set(ctx, "Connected", "YES", store.WithExpiration(15*time.Second))
 
 		if err != nil {
 			panic(err)
 		}
-		value, err := cacheManager.Get(ctx, "Connected")
+		value, err := CacheManager.Get(ctx, "Connected")
 		if err != nil {
 			log.Fatalf("unable to get cache key '%s' ", err)
 		}
 		fmt.Printf("%#+v\n", value)
 	})
-	return cacheManager
 }

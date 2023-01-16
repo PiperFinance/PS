@@ -8,7 +8,7 @@ import (
 	"portfolio/schema"
 )
 
-type chunkCall[T any] struct {
+type ChunkCall[T any] struct {
 	// Call Detail
 	schema.Id
 	schema.ChainId
@@ -31,6 +31,12 @@ type ChunkedCallOpts struct {
 type BalanceCall struct {
 	contractAddress common.Address
 	walletAddress   common.Address
+}
+
+type AllowanceCall struct {
+	tokenAddress    common.Address //ERC20 token with allowance function ...
+	contractAddress common.Address //Spender
+	walletAddress   common.Address //Owner
 }
 
 type BalanceValue struct {

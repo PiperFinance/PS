@@ -27,10 +27,10 @@ func getTokenBalances(
 	multiCaller Multicall.MulticallCaller,
 	tokens schema.TokenMapping,
 	wallets common.Address,
-	chunkedResultChannel chan []chunkCall[*big.Int]) uint64 {
+	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
 	allCalls := genTokenBalanceCalls(tokens, wallets)
-	chunkedCalls := utils.Chunks[chunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
+	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
 	for _, indexCalls := range chunkedCalls {
 		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
@@ -39,8 +39,19 @@ func getTokenBalances(
 	return uint64(len(chunkedCalls))
 }
 
-func balanceTokenResultParser(result map[schema.ChainId]schema.TokenMapping, chunk []chunkCall[*big.Int]) {
+func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]schema.TokenMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
+
+		// In case error occurred at rpc level
+		if call.Err != nil {
+			cachedCall := ChunkCallCache.Get(ChunkCallCacheKey{wallet, call.Id})
+			if cachedCall == nil || cachedCall.IsExpired() {
+				continue
+			}
+			call = cachedCall.Value()
+		} else {
+			ChunkCallCache.Set(ChunkCallCacheKey{wallet, call.Id}, call, ChunkCallCacheTTL)
+		}
 
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
 			continue
@@ -80,7 +91,7 @@ func GetChainsTokenBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address) map[schema.ChainId]schema.TokenMapping {
 
-	chunkedResultChannel := make(chan []chunkCall[*big.Int])
+	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 
 	var totalChunkCount uint64
@@ -104,7 +115,7 @@ func GetChainsTokenBalances(
 			totalChunkCount--
 		}
 
-		balanceTokenResultParser(_res, chunkCalls)
+		balanceTokenResultParser(wallet, _res, chunkCalls)
 
 		if totalChunkCount == 0 {
 			break
