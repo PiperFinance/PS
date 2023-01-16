@@ -24,6 +24,8 @@ func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCall
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
 
+	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex}
+	ChunkCallsCache.Delete(cacheKey)
 	if err != nil {
 		log.Error(err)
 		for i, _ := range chunkedCalls {
@@ -36,7 +38,7 @@ func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCall
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
-		ChunkCallsCache.Set(ChunkCallsCacheKey{wallet, id, chunkIndex}, chunkedCalls, ChunkCallCacheTTL)
+		ChunkCallsCache.Set(cacheKey, chunkedCalls, ChunkCallCacheTTL)
 	}
 	chunkChannel <- chunkedCalls
 }

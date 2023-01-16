@@ -36,6 +36,7 @@ func getPairBalances(
 		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
 		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
 			go func() {
+
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
@@ -48,16 +49,7 @@ func getPairBalances(
 
 func balancePairResultParser(wallet common.Address, result map[schema.ChainId]schema.PairMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
-		// In case error occurred at rpc level
-		if call.Err != nil {
-			cachedCall := ChunkCallCache.Get(ChunkCallCacheKey{wallet, call.Id})
-			if cachedCall == nil || cachedCall.IsExpired() {
-				continue
-			}
-			call = cachedCall.Value()
-		} else {
-			ChunkCallCache.Set(ChunkCallCacheKey{wallet, call.Id}, call, ChunkCallCacheTTL)
-		}
+
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
 			continue
 		}

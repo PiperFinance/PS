@@ -19,7 +19,7 @@ type ChunkCallsCacheKey struct {
 }
 
 var (
-	ChunkCallCacheTTL = 15 * time.Second
+	ChunkCallCacheTTL = 10 * time.Second
 	ChunkCallCache    = ttlcache.New[ChunkCallCacheKey, ChunkCall[*big.Int]](
 		ttlcache.WithTTL[ChunkCallCacheKey, ChunkCall[*big.Int]](ChunkCallCacheTTL),
 	)

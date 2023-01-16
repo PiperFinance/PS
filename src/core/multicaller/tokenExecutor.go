@@ -51,9 +51,6 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 
 		// In case error occurred at rpc level
 		if call.Err != nil {
-			ChunkCallCache.Delete(ChunkCallCacheKey{wallet, call.Id})
-		} else {
-			ChunkCallCache.Set(ChunkCallCacheKey{wallet, call.Id}, call, ChunkCallCacheTTL)
 		}
 
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
