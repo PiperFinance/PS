@@ -80,7 +80,7 @@ func init() {
 		}
 	})
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
+	priceUpdaterJobId, err := cr.AddFunc("* * * * *", priceUpdater)
 	if err != nil {
 		log.Error(err)
 	} else {
@@ -103,9 +103,6 @@ func priceUpdater() {
 	//priceUpdaterLock = true
 
 	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.MaxIdleConns = 5000
-	t.MaxConnsPerHost = 1
-	t.MaxIdleConnsPerHost = 5000
 
 	httpClient := &http.Client{
 		Timeout:   1 * time.Minute,
@@ -127,23 +124,27 @@ func priceUpdater() {
 	_res, err := httpClient.Post(TpServer, "application/json", bytes.NewBuffer(bytesValue))
 	if err != nil {
 		log.Error(err)
+		return
 	}
 	body, err := ioutil.ReadAll(_res.Body)
 	if err != nil {
 		log.Error(err)
+		return
 	}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
 		log.Error(err)
+		return
 	}
 	for tokenId, price := range res {
 		x := allTokens[tokenId]
 		z := chainTokens[x.Detail.ChainId][tokenId]
 		x.PriceUSD = price
 		z.PriceUSD = price
+		chainTokens[x.Detail.ChainId][tokenId] = z
+		allTokens[tokenId] = x
 		log.Infof("ID : %s  => %s", tokenId, price)
 	}
-	//priceUpdaterLock = false
 
 }
 
