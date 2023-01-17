@@ -1,9 +1,9 @@
 package configs
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/robfig/cron/v3"
 	"io/ioutil"
@@ -87,6 +87,7 @@ func init() {
 		log.Infof("Started priceUpdaterJobId [%s] @ %s", priceUpdaterJobId, time.Now())
 	}
 	cr.Start()
+
 	_TpServer, ok := os.LookupEnv("TP_SERVER")
 	if !ok {
 		_TpServer = "http://localhost:3001"
@@ -112,30 +113,35 @@ func priceUpdater() {
 	}
 
 	_chains := accessedChains.Get("ChainsToUpdate")
+
 	if _chains == nil || _chains.IsExpired() {
 		return
 	}
-	for _, chainId := range _chains.Value() {
-		for tokenId, _ := range ChainTokens(chainId) {
-			go func(id schema.TokenId, chainId schema.ChainId) {
-				var tokenPrice float64
-				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TpServer, id))
-				if err != nil {
-					log.Error(err)
-				} else {
-					byteValue, err := ioutil.ReadAll(res.Body)
-					parseErr := json.Unmarshal(byteValue, &tokenPrice)
-					if err != nil {
-						log.Error(err)
-					} else if parseErr != nil {
-						log.Error(parseErr)
-					} else {
-						log.Infof("ID : %s  => %s", id, tokenPrice)
-					}
+	ids := AllChainsTokenIds
+	res := make(map[schema.TokenId]float64)
 
-				}
-			}(tokenId, chainId)
-		}
+	bytesValue, err := json.Marshal(ids)
+	if err != nil {
+		log.Error(err)
+	}
+	_res, err := httpClient.Post(TpServer, "application/json", bytes.NewBuffer(bytesValue))
+	if err != nil {
+		log.Error(err)
+	}
+	body, err := ioutil.ReadAll(_res.Body)
+	if err != nil {
+		log.Error(err)
+	}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		log.Error(err)
+	}
+	for tokenId, price := range res {
+		x := allTokens[tokenId]
+		z := chainTokens[x.Detail.ChainId][tokenId]
+		x.PriceUSD = price
+		z.PriceUSD = price
+		log.Infof("ID : %s  => %s", tokenId, price)
 	}
 	priceUpdaterLock = false
 
@@ -143,6 +149,13 @@ func priceUpdater() {
 
 func AllChainsTokens() schema.TokenMapping {
 	return allTokens
+}
+func AllChainsTokenIds() []schema.TokenId {
+	allTokenIds := make([]schema.TokenId, 0)
+	for tokenId, _ := range AllChainsTokens() {
+		allTokenIds = append(allTokenIds, tokenId)
+	}
+	return allTokenIds
 }
 func AllChainsTokensArray() []schema.Token {
 	return allTokensArray
