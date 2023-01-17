@@ -3,13 +3,15 @@ package multicaller
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
+	"math/big"
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
 )
 
-func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, chunkedCalls []chunkCall[T], chunkChannel chan []chunkCall[T]) {
+func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int]) {
 
 	calls := make([]Multicall.Multicall3Call3, len(chunkedCalls))
 	for i, indexedCall := range chunkedCalls {
@@ -22,9 +24,13 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
 
+	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex}
+	ChunkCallsCache.Delete(cacheKey)
 	if err != nil {
 		log.Error(err)
-		chunkChannel <- nil
+		for i, _ := range chunkedCalls {
+			chunkedCalls[i].Err = err
+		}
 	} else {
 		for i, _res := range res {
 			chunkedCalls[i].CallRes = _res
@@ -32,6 +38,7 @@ func execute[T any](id schema.ChainId, multiCaller Multicall.MulticallCaller, ch
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
-		chunkChannel <- chunkedCalls
+		ChunkCallsCache.Set(cacheKey, chunkedCalls, ChunkCallCacheTTL)
 	}
+	chunkChannel <- chunkedCalls
 }

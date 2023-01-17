@@ -26,21 +26,32 @@ func getTokenBalances(
 	id schema.ChainId,
 	multiCaller Multicall.MulticallCaller,
 	tokens schema.TokenMapping,
-	wallets common.Address,
-	chunkedResultChannel chan []chunkCall[*big.Int]) uint64 {
+	wallet common.Address,
+	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
-	allCalls := genTokenBalanceCalls(tokens, wallets)
-	chunkedCalls := utils.Chunks[chunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
+	allCalls := genTokenBalanceCalls(tokens, wallet)
+	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
-	for _, indexCalls := range chunkedCalls {
-		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
+	for i, indexCalls := range chunkedCalls {
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
+			go func() {
+				chunkedResultChannel <- cachedChunkCalls.Value()
+			}()
+		} else {
+			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+		}
 	}
 
 	return uint64(len(chunkedCalls))
 }
 
-func balanceTokenResultParser(result map[schema.ChainId]schema.TokenMapping, chunk []chunkCall[*big.Int]) {
+func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]schema.TokenMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
+
+		// In case error occurred at rpc level
+		if call.Err != nil {
+		}
 
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
 			continue
@@ -80,7 +91,7 @@ func GetChainsTokenBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address) map[schema.ChainId]schema.TokenMapping {
 
-	chunkedResultChannel := make(chan []chunkCall[*big.Int])
+	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 
 	var totalChunkCount uint64
@@ -97,15 +108,14 @@ func GetChainsTokenBalances(
 			&totalChunkCount,
 			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel))
 	}
-
+	if totalChunkCount == 0 {
+		return _res
+	}
 	for chunkCalls := range chunkedResultChannel {
-		//tmp := <-chunkedResultChannel
 		if totalChunkCount > 0 {
 			totalChunkCount--
 		}
-
-		balanceTokenResultParser(_res, chunkCalls)
-
+		balanceTokenResultParser(wallet, _res, chunkCalls)
 		if totalChunkCount == 0 {
 			break
 		}

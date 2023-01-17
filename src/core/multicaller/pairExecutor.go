@@ -26,20 +26,28 @@ func getPairBalances(
 	id schema.ChainId,
 	multiCaller Multicall.MulticallCaller,
 	pairs schema.PairMapping,
-	wallets common.Address,
-	chunkedResultChannel chan []chunkCall[*big.Int]) uint64 {
+	wallet common.Address,
+	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
 
-	allCalls := genPairBalanceCalls(pairs, wallets)
-	chunkedCalls := utils.Chunks[chunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
+	allCalls := genPairBalanceCalls(pairs, wallet)
+	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
-	for _, indexCalls := range chunkedCalls {
-		go execute[*big.Int](id, multiCaller, indexCalls, chunkedResultChannel)
+	for i, indexCalls := range chunkedCalls {
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
+			go func() {
+
+				chunkedResultChannel <- cachedChunkCalls.Value()
+			}()
+		} else {
+			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+		}
 	}
 
 	return uint64(len(chunkedCalls))
 }
 
-func balancePairResultParser(result map[schema.ChainId]schema.PairMapping, chunk []chunkCall[*big.Int]) {
+func balancePairResultParser(wallet common.Address, result map[schema.ChainId]schema.PairMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
 
 		if !call.CallRes.Success || call.ParsedCallRes == nil {
@@ -81,7 +89,7 @@ func GetChainsPairBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address) map[schema.ChainId]schema.PairMapping {
 
-	chunkedResultChannel := make(chan []chunkCall[*big.Int])
+	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.PairMapping)
 
 	var totalChunkCount uint64
@@ -105,7 +113,7 @@ func GetChainsPairBalances(
 			totalChunkCount--
 		}
 
-		balancePairResultParser(_res, chunkCalls)
+		balancePairResultParser(wallet, _res, chunkCalls)
 
 		if totalChunkCount == 0 {
 			break

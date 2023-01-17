@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -15,7 +16,6 @@ import (
 )
 
 func init() {
-	fmt.Println("InitingApp")
 
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
@@ -35,16 +35,18 @@ func init() {
 }
 
 func main() {
-	fmt.Println("StartingApp")
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	router.Use(cors.New(config))
 
-	//// / info
+	//// info
 	router.GET("pair", allPairs)
 	router.GET("chain", allChains)
 	router.GET("tokens", allTokens)
 	router.GET(":chainId/tokens", chainTokens)
-	//// / balances
+	//// balances
 	router.GET("tokens/balance", getAddressTokensBalance)
 	router.GET("pairs/balance", getAddressPairsBalance)
 
