@@ -18,6 +18,7 @@ import (
 )
 
 var (
+	TpServer           string
 	onceForChainTokens sync.Once
 	// CD chain Tokens URL
 	allTokensArray       = make([]schema.Token, 0)
@@ -32,7 +33,6 @@ var (
 	accessedChains       = ttlcache.New[string, []schema.ChainId](
 		ttlcache.WithTTL[string, []schema.ChainId](15 * time.Second),
 	)
-	TP_SERVR = "http://localhost:3001"
 )
 
 func init() {
@@ -87,6 +87,12 @@ func init() {
 		log.Infof("Started priceUpdaterJobId [%s] @ %s", priceUpdaterJobId, time.Now())
 	}
 	cr.Start()
+	_TpServer, ok := os.LookupEnv("TP_SERVER")
+	if !ok {
+		_TpServer = "http://localhost:3001"
+	}
+	TpServer = _TpServer
+
 }
 
 func priceUpdater() {
@@ -113,7 +119,7 @@ func priceUpdater() {
 		for tokenId, _ := range ChainTokens(chainId) {
 			go func(id schema.TokenId, chainId schema.ChainId) {
 				var tokenPrice float64
-				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TP_SERVR, id))
+				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TpServer, id))
 				if err != nil {
 					log.Error(err)
 				} else {

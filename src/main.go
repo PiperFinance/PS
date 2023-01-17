@@ -39,6 +39,7 @@ func main() {
 	router := gin.Default()
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
+	//config.AllowHeaders = true
 	router.Use(cors.New(config))
 
 	//// info
