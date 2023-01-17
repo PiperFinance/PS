@@ -117,7 +117,7 @@ func priceUpdater() {
 	if _chains == nil || _chains.IsExpired() {
 		return
 	}
-	ids := AllChainsTokenIds
+	ids := AllChainsTokenIds()
 	res := make(map[schema.TokenId]float64)
 
 	bytesValue, err := json.Marshal(ids)
