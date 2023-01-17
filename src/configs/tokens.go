@@ -29,7 +29,7 @@ var (
 	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
 	priceUpdaterLock     = false
-	priceUpdaterTTL      = 2 * time.Minute
+	priceUpdaterTTL      = 15 * time.Minute
 	accessedChains       = ttlcache.New[string, []schema.ChainId](
 		ttlcache.WithTTL[string, []schema.ChainId](15 * time.Second),
 	)
@@ -80,7 +80,7 @@ func init() {
 		}
 	})
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("*/3 * * * *", priceUpdater)
+	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
 	if err != nil {
 		log.Error(err)
 	} else {
