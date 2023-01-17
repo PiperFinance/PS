@@ -80,7 +80,7 @@ func init() {
 		}
 	})
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
+	priceUpdaterJobId, err := cr.AddFunc("*/3 * * * *", priceUpdater)
 	if err != nil {
 		log.Error(err)
 	} else {
@@ -97,10 +97,10 @@ func init() {
 }
 
 func priceUpdater() {
-	if priceUpdaterLock {
-		return
-	}
-	priceUpdaterLock = true
+	//if priceUpdaterLock {
+	//	return
+	//}
+	//priceUpdaterLock = true
 
 	t := http.DefaultTransport.(*http.Transport).Clone()
 	t.MaxIdleConns = 5000
@@ -143,7 +143,7 @@ func priceUpdater() {
 		z.PriceUSD = price
 		log.Infof("ID : %s  => %s", tokenId, price)
 	}
-	priceUpdaterLock = false
+	//priceUpdaterLock = false
 
 }
 
