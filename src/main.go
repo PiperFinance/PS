@@ -16,7 +16,6 @@ import (
 )
 
 func init() {
-	fmt.Println("InitingApp")
 
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
@@ -36,7 +35,6 @@ func init() {
 }
 
 func main() {
-	fmt.Println("StartingApp")
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	config := cors.DefaultConfig()
