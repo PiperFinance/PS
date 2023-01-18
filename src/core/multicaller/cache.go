@@ -4,8 +4,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/jellydator/ttlcache/v3"
 	"math/big"
+	"portfolio/configs"
 	"portfolio/schema"
-	"time"
 )
 
 type ChunkCallCacheKey struct {
@@ -16,24 +16,11 @@ type ChunkCallsCacheKey struct {
 	Wallet common.Address
 	schema.ChainId
 	chunkIndex int
+	what       string
 }
 
 var (
-	ChunkCallCacheTTL = 1 * time.Minute
-
-	//ChunkCallsCache
-	// True For OK , False For Failed
 	ChunkCallsCache = ttlcache.New[ChunkCallsCacheKey, []ChunkCall[*big.Int]](
-		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](ChunkCallCacheTTL),
+		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](configs.ChunkCallCacheTTL),
 	)
 )
-
-//func ChunkCallsCache[T comparable]() {
-//	switch T.(type) {
-//	case big.Int:
-//
-//	}
-//	ttlcache.New[ChunkCallsCacheKey, []ChunkCall[T]](
-//		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[T]](ChunkCallCacheTTL),
-//	)
-//}

@@ -80,11 +80,9 @@ func init() {
 		}
 	})
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
+	_, err := cr.AddFunc("*/2 * * * *", priceUpdater)
 	if err != nil {
-		log.Error(err)
-	} else {
-		log.Infof("Started priceUpdaterJobId [%s] @ %s", priceUpdaterJobId, time.Now())
+		log.Fatal(err)
 	}
 	cr.Start()
 

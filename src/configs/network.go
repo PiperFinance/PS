@@ -16,16 +16,15 @@ import (
 )
 
 var (
-	onceForEthClient     sync.Once
-	onceForMultiCall     sync.Once
-	onceForMainNet       sync.Once
-	Networks             = make([]schema.Network, 0)
-	MULTICALL_V3_ADDRESS = common.HexToAddress("0xca11bde05977b3631167028862be2a173976ca11")
-	gethClients          = make(map[schema.ChainId]*ethclient.Client, 10)
-	multiCallInstances   = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
-	ChainIds             = make([]schema.ChainId, 0)
-	chainsUrl            = "https://github.com/PiperFinance/CD/blob/main/chains/mainnet.json?raw=true"
-	chainsDir            = "data/mainnet.json"
+	onceForMainNet     sync.Once
+	Networks           = make([]schema.Network, 0)
+	MulticallV3Address = common.HexToAddress("0xca11bde05977b3631167028862be2a173976ca11")
+	gethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
+	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
+	ChainIds           = make([]schema.ChainId, 0)
+	chainsUrl          = "https://github.com/PiperFinance/CD/blob/main/chains/mainnet.json?raw=true"
+	chainsDir          = "data/mainnet.json"
+	DefaultRPCTimeout  = time.Millisecond * 5450
 )
 
 func init() {
@@ -70,7 +69,7 @@ func init() {
 				log.Errorf("Client Connection Error : %s  @ chainId: %d", err, chainId)
 			} else {
 				gethClients[chainId] = client
-				contractInstance, err := Multicall.NewMulticallCaller(MULTICALL_V3_ADDRESS, client)
+				contractInstance, err := Multicall.NewMulticallCaller(MulticallV3Address, client)
 				if err != nil {
 					log.Errorf("Contract Instance Creation Error : %s @ chainID :%d", err, chainId)
 				}
@@ -81,7 +80,7 @@ func init() {
 	})
 }
 func ChainContextTimeOut(id schema.ChainId) time.Duration {
-	return time.Millisecond * 50450
+	return DefaultRPCTimeout
 }
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
 	return multiCallInstances[id]

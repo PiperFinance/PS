@@ -11,8 +11,11 @@ import (
 )
 
 var mongoBackgroundContextOnce sync.Once
-
 var mongoClient *mongo.Client
+
+const (
+	MongoContextTimeout = 2 * time.Second
+)
 
 //mongoUrl : Sample url format is mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
 func mongoUrl() string {
@@ -37,7 +40,7 @@ func newMongoClient() *mongo.Client {
 func GetMongo() *mongo.Client {
 	mongoBackgroundContextOnce.Do(func() {
 		mongoClient := newMongoClient()
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, _ := context.WithTimeout(context.Background(), MongoContextTimeout)
 		err := mongoClient.Connect(ctx)
 		if err != nil {
 			log.Fatal(err)

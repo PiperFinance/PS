@@ -33,14 +33,14 @@ func getPairBalances(
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
 	for i, indexCalls := range chunkedCalls {
-		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i, "p"})
 		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
 			go func() {
 
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
-			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+			go execute("p", i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
 		}
 	}
 

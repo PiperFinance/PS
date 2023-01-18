@@ -21,7 +21,7 @@ func BalanceOf(call BalanceCall) Multicall.Multicall3Call3 {
 // NativeBalance Uses getEthBalance(address) method in multicall contract to get user's native balance
 func NativeBalance(call BalanceCall) Multicall.Multicall3Call3 {
 	return Multicall.Multicall3Call3{
-		Target:       configs.MULTICALL_V3_ADDRESS,
+		Target:       configs.MulticallV3Address,
 		AllowFailure: true,
 		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", NATIVE_BALANCE_FUNC, call.walletAddress.Hash().String()[2:]))}
 }

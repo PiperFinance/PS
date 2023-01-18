@@ -33,13 +33,13 @@ func getTokenBalances(
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
 	for i, indexCalls := range chunkedCalls {
-		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i})
+		cachedChunkCalls := ChunkCallsCache.Get(ChunkCallsCacheKey{wallet, id, i, "t"})
 		if cachedChunkCalls != nil && !cachedChunkCalls.IsExpired() {
 			go func() {
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
-			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+			go execute("t", i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
 		}
 	}
 

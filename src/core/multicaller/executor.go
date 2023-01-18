@@ -11,20 +11,21 @@ import (
 	"portfolio/schema"
 )
 
-func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int]) {
+// what is either p / t > pair / token
+func execute(what string, chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int]) {
 
 	calls := make([]Multicall.Multicall3Call3, len(chunkedCalls))
 	for i, indexedCall := range chunkedCalls {
 		calls[i] = indexedCall.Call
 	}
 
-	contx, cancle := context.WithTimeout(context.Background(), configs.ChainContextTimeOut(id))
-	defer cancle()
+	contx, cancel := context.WithTimeout(context.Background(), configs.ChainContextTimeOut(id))
+	defer cancel()
 	DefaultW3CallOpts := bind.CallOpts{Context: contx}
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
 
-	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex}
+	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex, what}
 	ChunkCallsCache.Delete(cacheKey)
 	if err != nil {
 		log.Error(err)
@@ -38,7 +39,7 @@ func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCall
 				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
 			}
 		}
-		ChunkCallsCache.Set(cacheKey, chunkedCalls, ChunkCallCacheTTL)
+		ChunkCallsCache.Set(cacheKey, chunkedCalls, configs.ChunkCallCacheTTL)
 	}
 	chunkChannel <- chunkedCalls
 }
