@@ -81,7 +81,7 @@ func init() {
 	})
 }
 func ChainContextTimeOut(id schema.ChainId) time.Duration {
-	return time.Millisecond * 5450
+	return time.Millisecond * 50450
 }
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
 	return multiCallInstances[id]

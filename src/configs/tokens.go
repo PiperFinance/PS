@@ -21,16 +21,16 @@ var (
 	TpServer           string
 	onceForChainTokens sync.Once
 	// CD chain Tokens URL
-	allTokensArray       = make([]schema.Token, 0)
+	//allTokensArray       = make([]schema.Token, 0)
 	allTokens            = make(schema.TokenMapping)
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
 	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
-	priceUpdaterLock     = false
-	priceUpdaterTTL      = 15 * time.Minute
-	accessedChains       = ttlcache.New[string, []schema.ChainId](
+	//priceUpdaterLock     = false
+	priceUpdaterTTL = 15 * time.Minute
+	accessedChains  = ttlcache.New[string, []schema.ChainId](
 		ttlcache.WithTTL[string, []schema.ChainId](15 * time.Second),
 	)
 )
@@ -76,11 +76,11 @@ func init() {
 				chainTokens[chainId] = make(schema.TokenMapping)
 			}
 			chainTokens[chainId][tokenId] = token
-			allTokensArray = append(allTokensArray, token)
+			//allTokensArray = append(allTokensArray, token)
 		}
 	})
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("* * * * *", priceUpdater)
+	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
 	if err != nil {
 		log.Error(err)
 	} else {
@@ -102,13 +102,6 @@ func priceUpdater() {
 	//}
 	//priceUpdaterLock = true
 
-	t := http.DefaultTransport.(*http.Transport).Clone()
-
-	httpClient := &http.Client{
-		Timeout:   1 * time.Minute,
-		Transport: t,
-	}
-
 	_chains := accessedChains.Get("ChainsToUpdate")
 
 	if _chains == nil || _chains.IsExpired() {
@@ -121,7 +114,7 @@ func priceUpdater() {
 	if err != nil {
 		log.Error(err)
 	}
-	_res, err := httpClient.Post(TpServer, "application/json", bytes.NewBuffer(bytesValue))
+	_res, err := http.Post(TpServer, "application/json", bytes.NewBuffer(bytesValue))
 	if err != nil {
 		log.Error(err)
 		return
@@ -141,9 +134,9 @@ func priceUpdater() {
 		z := chainTokens[x.Detail.ChainId][tokenId]
 		x.PriceUSD = price
 		z.PriceUSD = price
-		chainTokens[x.Detail.ChainId][tokenId] = z
+		chainTokens[z.Detail.ChainId][tokenId] = z
 		allTokens[tokenId] = x
-		log.Infof("ID : %s  => %s", tokenId, price)
+		//log.Infof("ID : %s  => %s", tokenId, price)
 	}
 
 }
@@ -158,9 +151,10 @@ func AllChainsTokenIds() []schema.TokenId {
 	}
 	return allTokenIds
 }
-func AllChainsTokensArray() []schema.Token {
-	return allTokensArray
-}
+
+//func AllChainsTokensArray() []schema.Token {
+//	return allTokensArray
+//}
 
 func ChainTokens(id schema.ChainId) schema.TokenMapping {
 	_chains := accessedChains.Get("ChainsToUpdate")

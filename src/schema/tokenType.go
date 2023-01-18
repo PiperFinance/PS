@@ -36,7 +36,8 @@ type TokenMapping map[TokenId]Token
 // Copy Only copies the detail bit
 func (token Token) Copy() *Token {
 	return &Token{
-		Detail: token.Detail}
+		PriceUSD: token.PriceUSD,
+		Detail:   token.Detail}
 }
 
 //func (tokenMapping TokenMapping) copy(src TokenMapping) TokenMapping {

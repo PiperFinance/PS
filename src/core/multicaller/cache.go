@@ -19,7 +19,7 @@ type ChunkCallsCacheKey struct {
 }
 
 var (
-	ChunkCallCacheTTL = 15 * time.Second
+	ChunkCallCacheTTL = 1 * time.Minute
 
 	//ChunkCallsCache
 	// True For OK , False For Failed

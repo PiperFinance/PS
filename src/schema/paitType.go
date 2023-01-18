@@ -35,5 +35,6 @@ type PairMapping map[PairId]Pair
 // Copy Returns another Object with same detail
 func (pair Pair) Copy() *Pair {
 	return &Pair{
-		Detail: pair.Detail}
+		PriceUSD: pair.PriceUSD,
+		Detail:   pair.Detail}
 }
