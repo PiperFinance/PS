@@ -1,14 +1,15 @@
 package multicaller
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	log "github.com/sirupsen/logrus"
 	"math/big"
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/core/utils"
 	"portfolio/schema"
 	"sync/atomic"
+
+	"github.com/ethereum/go-ethereum/common"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 )
 
 func init() {
-	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 250}
+	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 2}
 }
 
 // getTokenBalances Wallet balance based on given token ( Faster if chunks is used)
