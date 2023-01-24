@@ -22,7 +22,7 @@ var (
 	gethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
 	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
 	ChainIds           = make([]schema.ChainId, 0)
-	chainsUrl          = ""
+	chainsUrl          = "https://github.com/PiperFinance/CD/blob/main/chains/supportedChains.json?raw=true"
 	chainsDir          = "data/mainnet.json"
 	DefaultRPCTimeout  = time.Millisecond * 5450
 )
