@@ -3,16 +3,17 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"portfolio/contracts/MulticallContract"
+	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 	gethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
 	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
 	ChainIds           = make([]schema.ChainId, 0)
-	chainsUrl          = "https://github.com/PiperFinance/CD/blob/main/chains/supportedChains.json?raw=true"
+	chainsUrl          = "https://github.com/PiperFinance/CD/blob/main/chains/mainnet.json?raw=true"
 	chainsDir          = "data/mainnet.json"
 	DefaultRPCTimeout  = time.Millisecond * 5450
 )

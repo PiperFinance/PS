@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/jellydator/ttlcache/v3"
-	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"portfolio/schema"
 	"sync"
 	"time"
+
+	"github.com/jellydator/ttlcache/v3"
+	"github.com/robfig/cron/v3"
 
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ var (
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
-	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/customTestTokens.json?raw=true"
+	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
 	//priceUpdaterLock     = false
 	priceUpdaterTTL = 15 * time.Minute
