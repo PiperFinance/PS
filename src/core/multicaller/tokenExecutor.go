@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 2}
+	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 5}
 }
 
 // getTokenBalances Wallet balance based on given token ( Faster if chunks is used)
