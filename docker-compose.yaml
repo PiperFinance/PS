@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-  portfolio:
-    hostname: portfolio
-    container_name: portfolio
+  test_ps:
+    hostname: test_ps
+    container_name: test_ps
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 8765:8765
+      - 4554:4554
     environment:
-      - PORT=8765
+      - PORT=4554
       - REDIS_URL=redis://redis:6379
       - TP_SERVER=http://tp:9765  
 
@@ -29,4 +29,4 @@ networks:
       name: redis_db
   ps_default:
     driver: bridge
-    name: ps_default
+    name: test_ps_default
