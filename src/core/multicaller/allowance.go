@@ -6,7 +6,7 @@ import (
 	Multicall "portfolio/contracts/MulticallContract"
 )
 
-// BalanceOf Uses ERC20 balanceOf
+// Allowance Uses ERC20 allowance
 func Allowance(call AllowanceCall) Multicall.Multicall3Call3 {
 	return Multicall.Multicall3Call3{
 		Target:       call.contractAddress,

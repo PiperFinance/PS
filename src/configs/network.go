@@ -19,7 +19,7 @@ import (
 var (
 	onceForMainNet     sync.Once
 	Networks           = make([]schema.Network, 0)
-	MulticallV3Address = common.HexToAddress("0xF0Dc8595091708F108a17F445Eb65cff23622F94")
+	MulticallV3Address = common.HexToAddress("0xf0dc8595091708f108a17f445eb65cff23622f94")
 	gethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
 	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
 	ChainIds           = make([]schema.ChainId, 0)

@@ -48,8 +48,8 @@ func main() {
 	router.GET("tokens", allTokens)
 	router.GET(":chainId/tokens", chainTokens)
 	//// balances
-	router.GET("tokens/balance", getAddressTokensBalance)
-	router.GET("pairs/balance", getAddressPairsBalance)
+	router.GET("tokens/balance", getWalletTokensBalance)
+	router.GET("pairs/balance", getWalletPairsBalance)
 
 	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
 	if err != nil {
@@ -77,7 +77,7 @@ func chainTokens(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, configs.ChainTokens(chainId))
 }
 
-func getAddressTokensBalance(c *gin.Context) {
+func getWalletTokensBalance(c *gin.Context) {
 
 	// WALLETS
 	_wallet := c.Query("wallet")
@@ -97,7 +97,7 @@ func getAddressTokensBalance(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, _res)
 }
 
-func getAddressPairsBalance(c *gin.Context) {
+func getWalletPairsBalance(c *gin.Context) {
 
 	// WALLETS
 	_wallet := c.Query("wallet")
@@ -113,6 +113,26 @@ func getAddressPairsBalance(c *gin.Context) {
 		return
 	}
 	_res := multicaller.GetChainsPairBalances(chainIds, walletsQP)
+
+	c.IndentedJSON(http.StatusOK, _res)
+}
+
+func getWalletTokensAllowance(c *gin.Context) {
+
+	// WALLETS
+	_wallet := c.Query("wallet")
+	if len(_wallet) == 0 {
+		c.IndentedJSON(http.StatusOK, nil)
+		return
+	}
+	walletsQP := common.HexToAddress(_wallet)
+
+	chainIds := filters.QueryChainIds(c)
+	if len(chainIds) == 0 {
+		c.IndentedJSON(http.StatusOK, nil)
+		return
+	}
+	_res := multicaller.GetChainsTokenAllowance(chainIds, walletsQP)
 
 	c.IndentedJSON(http.StatusOK, _res)
 }

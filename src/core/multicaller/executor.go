@@ -24,7 +24,8 @@ func execute(what string, chunkIndex int, id schema.ChainId, wallet common.Addre
 	DefaultW3CallOpts := bind.CallOpts{Context: contx}
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
-
+	res2, err2 := multiCaller.GetChainId(&bind.CallOpts{Context: contx})
+	_, _ = res2, err2
 	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex, what}
 	ChunkCallsCache.Delete(cacheKey)
 	if err != nil {
