@@ -19,11 +19,11 @@ import (
 var (
 	onceForMainNet     sync.Once
 	Networks           = make([]schema.Network, 0)
-	MulticallV3Address = common.HexToAddress("0xca11bde05977b3631167028862be2a173976ca11")
+	MulticallV3Address = common.HexToAddress("0xF0Dc8595091708F108a17F445Eb65cff23622F94")
 	gethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
 	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
 	ChainIds           = make([]schema.ChainId, 0)
-	chainsUrl          = "https://raw.githubusercontent.com/PiperFinance/CD/main/chains/supportedChains.json"
+	chainsUrl          = "https://raw.githubusercontent.com/PiperFinance/CD/testnet/main/chains/mainnet.json"
 	chainsDir          = "data/mainnet.json"
 	DefaultRPCTimeout  = time.Millisecond * 5450
 )
