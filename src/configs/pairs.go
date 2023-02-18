@@ -16,7 +16,7 @@ var (
 	allPairs          = make(schema.PairMapping)
 	chainPairs        = make(map[schema.ChainId]schema.PairMapping)
 	allPairsArray     = make([]schema.Pair, 0)
-	pairsUrl          = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
+	pairsUrl          = "https://raw.githubusercontent.com/PiperFinance/CD/testnet/main/pair/all_pairs.json"
 	pairsDir          = "data/all_pairs.json"
 )
 

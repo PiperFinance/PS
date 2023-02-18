@@ -27,7 +27,7 @@ var (
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
-	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
+	tokensUrl            = "https://github.com/PiperFinance/CD/blob/testnet/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
 	//priceUpdaterLock     = false
 	priceUpdaterTTL = 15 * time.Minute
