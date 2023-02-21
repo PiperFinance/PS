@@ -86,6 +86,9 @@ func ChainContextTimeOut(id schema.ChainId) time.Duration {
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
 	return multiCallInstances[id]
 }
+func ChainWrappedToken(id schema.ChainId) common.Address {
+	return common.Address{}
+}
 
 // TODO - Add this ...
 func ChainSupportedChunkSize(id schema.ChainId) int16 {

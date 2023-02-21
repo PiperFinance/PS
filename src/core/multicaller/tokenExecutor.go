@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 5}
+	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 15}
 }
 
 // getTokenBalances Wallet balance based on given token ( Faster if chunks is used)
@@ -129,24 +129,27 @@ func GetChainsTokenBalances(
 
 func GetChainsTokenAllowance(
 	chainIds []schema.ChainId,
-	wallet common.Address) map[schema.ChainId]schema.TokenMapping {
+	spenders []common.Address,
+	wallet common.Address) map[schema.ChainId]map[common.Address]schema.TokenMapping {
 
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
-	_res := make(map[schema.ChainId]schema.TokenMapping)
+	_res := make(map[schema.ChainId]map[common.Address]schema.TokenMapping)
 
 	var totalChunkCount uint64
 	totalChunkCount = 0
+	for _, spender := range spenders {
 
-	for _, chainId := range chainIds {
-		_tokens := configs.ChainTokens(chainId)
-		_multicall := configs.ChainMultiCall(chainId)
+		for _, chainId := range chainIds {
+			_tokens := configs.ChainTokens(chainId)
+			_multicall := configs.ChainMultiCall(chainId)
 
-		if _multicall == nil || _tokens == nil {
-			continue
+			if _multicall == nil || _tokens == nil {
+				continue
+			}
+			atomic.AddUint64(
+				&totalChunkCount,
+				getTokenAllowances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, spender, chunkedResultChannel))
 		}
-		atomic.AddUint64(
-			&totalChunkCount,
-			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel))
 	}
 	if totalChunkCount == 0 {
 		return _res
@@ -155,7 +158,7 @@ func GetChainsTokenAllowance(
 		if totalChunkCount > 0 {
 			totalChunkCount--
 		}
-		balanceTokenResultParser(wallet, _res, chunkCalls)
+		allowanceTokenResultParser(wallet, _res, chunkCalls)
 		if totalChunkCount == 0 {
 			break
 		}

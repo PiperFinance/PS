@@ -21,6 +21,8 @@ type ChunkCall[T any] struct {
 	ResultParser  func(byte []byte) T
 	// Possible Call Error
 	Err any
+	// Extra Call related keys
+	spender common.Address
 }
 
 type ChunkedCallOpts struct {

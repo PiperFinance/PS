@@ -2,6 +2,7 @@ package multicaller
 
 import (
 	"context"
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
@@ -24,10 +25,13 @@ func execute(what string, chunkIndex int, id schema.ChainId, wallet common.Addre
 	DefaultW3CallOpts := bind.CallOpts{Context: contx}
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
-	res2, err2 := multiCaller.GetChainId(&bind.CallOpts{Context: contx})
-	_, _ = res2, err2
+	//res2, err2 := multiCaller.GetChainId(&bind.CallOpts{Context: contx})
+	//_, _ = res2, err2
 	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex, what}
-	ChunkCallsCache.Delete(cacheKey)
+	c := ChunkCallsCache.Get(cacheKey)
+	if c != nil && !c.IsExpired() {
+		ChunkCallsCache.Delete(cacheKey)
+	}
 	if err != nil {
 		log.Error(err)
 		for i, _ := range chunkedCalls {
@@ -37,7 +41,12 @@ func execute(what string, chunkIndex int, id schema.ChainId, wallet common.Addre
 		for i, _res := range res {
 			chunkedCalls[i].CallRes = _res
 			if _res.Success {
-				chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
+				_parser := chunkedCalls[i].ResultParser
+				if _parser != nil {
+					chunkedCalls[i].ParsedCallRes = chunkedCalls[i].ResultParser(_res.ReturnData)
+				}
+			} else {
+				fmt.Println(_res.ReturnData)
 			}
 		}
 		ChunkCallsCache.Set(cacheKey, chunkedCalls, configs.ChunkCallCacheTTL)

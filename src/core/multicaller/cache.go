@@ -19,8 +19,6 @@ type ChunkCallsCacheKey struct {
 	what       string
 }
 
-var (
-	ChunkCallsCache = ttlcache.New[ChunkCallsCacheKey, []ChunkCall[*big.Int]](
-		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](configs.ChunkCallCacheTTL),
-	)
+var ChunkCallsCache = ttlcache.New[ChunkCallsCacheKey, []ChunkCall[*big.Int]](
+	ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](configs.ChunkCallCacheTTL),
 )

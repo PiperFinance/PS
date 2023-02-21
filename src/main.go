@@ -49,6 +49,7 @@ func main() {
 	router.GET(":chainId/tokens", chainTokens)
 	//// balances
 	router.GET("tokens/balance", getWalletTokensBalance)
+	router.GET("tokens/allowance", getWalletTokensAllowance)
 	router.GET("pairs/balance", getWalletPairsBalance)
 
 	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
@@ -127,12 +128,22 @@ func getWalletTokensAllowance(c *gin.Context) {
 	}
 	walletsQP := common.HexToAddress(_wallet)
 
+	_spenders := c.QueryArray("spenders")
+	if len(_spenders) == 0 {
+		c.IndentedJSON(http.StatusOK, nil)
+		return
+	}
+	spendersQP := make([]common.Address, len(_spenders))
+	for i, _spender := range _spenders {
+		spendersQP[i] = common.HexToAddress(_spender)
+	}
+
 	chainIds := filters.QueryChainIds(c)
 	if len(chainIds) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res := multicaller.GetChainsTokenAllowance(chainIds, walletsQP)
+	_res := multicaller.GetChainsTokenAllowance(chainIds, spendersQP, walletsQP)
 
 	c.IndentedJSON(http.StatusOK, _res)
 }
