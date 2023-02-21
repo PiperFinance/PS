@@ -21,11 +21,11 @@ type ChunkCallsCacheKey struct {
 var (
 	ChunkCallCacheTTL = 15 * time.Second
 
-	//ChunkCallsCache
-	// True For OK , False For Failed
 	ChunkCallsCache = ttlcache.New[ChunkCallsCacheKey, []ChunkCall[*big.Int]](
 		ttlcache.WithTTL[ChunkCallsCacheKey, []ChunkCall[*big.Int]](ChunkCallCacheTTL),
 	)
+	//ChunkCallsCache
+	// True For OK , False For Failed
 )
 
 //func ChunkCallsCache[T comparable]() {
