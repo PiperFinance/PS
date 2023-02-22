@@ -140,6 +140,7 @@ func allowanceTokenResultParser(wallet common.Address, result map[schema.ChainId
 			_token.Value = *v
 			_token.ValueStr = v.String()
 		}
+		_token.Spender = call.spender
 		if result[chainId][call.spender] == nil {
 			result[chainId][call.spender] = make(schema.TokenMapping)
 		}

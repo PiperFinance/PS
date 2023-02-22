@@ -23,14 +23,15 @@ type TokenDet struct {
 }
 
 type Token struct {
-	Detail       TokenDet  `json:"detail"`
-	PriceUSD     float64   `json:"priceUSD"`
-	Balance      big.Float `json:"-"`
-	Allowance    big.Float `json:"-"`
-	Value        big.Float `json:"-"`
-	BalanceStr   string    `json:"balance"`
-	AllowanceStr string    `json:"allowance"`
-	ValueStr     string    `json:"value"`
+	Detail       TokenDet       `json:"detail"`
+	PriceUSD     float64        `json:"priceUSD"`
+	Allowance    big.Float      `json:"-"`
+	Balance      big.Float      `json:"-"`
+	Value        big.Float      `json:"-"`
+	Spender      common.Address `json:"spender"`
+	BalanceStr   string         `json:"balance"`
+	AllowanceStr string         `json:"allowance"`
+	ValueStr     string         `json:"value"`
 }
 
 type TokenMapping map[TokenId]Token
