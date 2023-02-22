@@ -144,6 +144,12 @@ func getWalletTokensAllowance(c *gin.Context) {
 		return
 	}
 	_res := multicaller.GetChainsTokenAllowance(chainIds, spendersQP, walletsQP)
+	_resNotChainSeperated := make(map[common.Address]schema.TokenMapping)
+	for chain, _ := range _res {
+		for spender, _token := range _res[chain] {
+			_resNotChainSeperated[spender] = _token
 
-	c.IndentedJSON(http.StatusOK, _res)
+		}
+	}
+	c.IndentedJSON(http.StatusOK, _resNotChainSeperated)
 }
