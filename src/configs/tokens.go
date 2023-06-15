@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jellydator/ttlcache/v3"
-	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"portfolio/schema"
 	"sync"
 	"time"
+
+	"github.com/jellydator/ttlcache/v3"
+	"github.com/robfig/cron/v3"
+
+	"portfolio/schema"
 
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
@@ -36,9 +38,7 @@ var (
 )
 
 func init() {
-
 	onceForChainTokens.Do(func() {
-
 		// Load Tokens ...
 		var byteValue []byte
 		if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
@@ -92,7 +92,6 @@ func init() {
 		_TpServer = "http://localhost:3001"
 	}
 	TpServer = _TpServer
-
 }
 
 func priceUpdater() {
@@ -116,7 +115,7 @@ func priceUpdater() {
 		return
 	}
 	for _, chainId := range _chains.Value() {
-		for tokenId, _ := range ChainTokens(chainId) {
+		for tokenId := range ChainTokens(chainId) {
 			go func(id schema.TokenId, chainId schema.ChainId) {
 				var tokenPrice float64
 				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TpServer, id))
@@ -138,12 +137,12 @@ func priceUpdater() {
 		}
 	}
 	priceUpdaterLock = false
-
 }
 
 func AllChainsTokens() schema.TokenMapping {
 	return allTokens
 }
+
 func AllChainsTokensArray() []schema.Token {
 	return allTokensArray
 }

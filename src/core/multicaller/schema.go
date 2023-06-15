@@ -1,9 +1,12 @@
 package multicaller
 
 import (
+	"math/big"
+	"time"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"math/big"
+
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
 )
@@ -12,7 +15,7 @@ type ChunkCall[T any] struct {
 	// Call Detail
 	schema.Id
 	schema.ChainId
-	//schema.TokenId
+	// schema.TokenId
 	// Call Itself
 	Call Multicall.Multicall3Call3
 	// Call Result
@@ -24,8 +27,9 @@ type ChunkCall[T any] struct {
 }
 
 type ChunkedCallOpts struct {
-	W3CallOpt *bind.CallOpts
-	ChunkSize int
+	W3CallOpt  *bind.CallOpts
+	ChunkSize  int
+	MaxTimeout time.Duration
 }
 
 type BalanceCall struct {
@@ -34,9 +38,9 @@ type BalanceCall struct {
 }
 
 type AllowanceCall struct {
-	tokenAddress    common.Address //ERC20 token with allowance function ...
-	contractAddress common.Address //Spender
-	walletAddress   common.Address //Owner
+	tokenAddress    common.Address // ERC20 token with allowance function ...
+	contractAddress common.Address // Spender
+	walletAddress   common.Address // Owner
 }
 
 type BalanceValue struct {

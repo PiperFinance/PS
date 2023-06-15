@@ -1,22 +1,23 @@
 package multicaller
 
 import (
+	"math/big"
+	"sync/atomic"
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
-	"math/big"
+
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/core/utils"
 	"portfolio/schema"
-	"sync/atomic"
 )
 
-var (
-	TokenBalanceCallOpt ChunkedCallOpts
-)
+var TokenBalanceCallOpt ChunkedCallOpts
 
 func init() {
-	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 250}
+	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 10}
 }
 
 // getTokenBalances Wallet balance based on given token ( Faster if chunks is used)
@@ -27,8 +28,9 @@ func getTokenBalances(
 	multiCaller Multicall.MulticallCaller,
 	tokens schema.TokenMapping,
 	wallet common.Address,
-	chunkedResultChannel chan []ChunkCall[*big.Int]) uint64 {
-
+	chunkedResultChannel chan []ChunkCall[*big.Int],
+	callTimeout time.Duration,
+) uint64 {
 	allCalls := genTokenBalanceCalls(tokens, wallet)
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
 
@@ -39,10 +41,9 @@ func getTokenBalances(
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
-			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel)
+			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel, callTimeout)
 		}
 	}
-
 	return uint64(len(chunkedCalls))
 }
 
@@ -82,20 +83,19 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 			_token.ValueStr = v.String()
 		}
 		result[chainId][_tokenId] = *_token
-
 	}
-
+	_ = wallet
 }
 
 func GetChainsTokenBalances(
 	chainIds []schema.ChainId,
-	wallet common.Address) map[schema.ChainId]schema.TokenMapping {
-
+	wallet common.Address,
+	callTimeout time.Duration,
+) map[schema.ChainId]schema.TokenMapping {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 
 	var totalChunkCount uint64
-	totalChunkCount = 0
 
 	for _, chainId := range chainIds {
 		_tokens := configs.ChainTokens(chainId)
@@ -106,7 +106,7 @@ func GetChainsTokenBalances(
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel))
+			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel, callTimeout))
 	}
 	if totalChunkCount == 0 {
 		return _res

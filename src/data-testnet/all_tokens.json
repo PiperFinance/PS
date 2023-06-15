@@ -1,0 +1,363 @@
+{
+    "2308621113": {
+        "detail": {
+            "chainId": 5,
+            "address": "0x5a94Dc6cc85fdA49d8E9A8b85DDE8629025C42be",
+            "name": "BitDAO",
+            "symbol": "BIT",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": "bitdao",
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": "https://assets.coingecko.com/coins/images/17627/small/rI_YptK8.png?1653983088",
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "3681584250": {
+        "detail": {
+            "chainId": 1,
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            "name": "Ether",
+            "symbol": "ETH",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "3692904547": {
+        "detail": {
+            "chainId": 5,
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            "name": "Ether",
+            "symbol": "ETH",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File",
+                "Natives"
+            ],
+            "logoURI": "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2997432565": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111",
+            "name": "Ether",
+            "symbol": "ETH",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "742218722": {
+        "detail": {
+            "chainId": 5,
+            "address": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+            "name": "Chainlink",
+            "symbol": "LINK",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "4062542436": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0xA440ca6123C6d472F85c1f3930395664BCcd3d01",
+            "name": "Chainlink",
+            "symbol": "LINK",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2723412332": {
+        "detail": {
+            "chainId": 5,
+            "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+            "name": "Uniswap",
+            "symbol": "UNI",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "499114897": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0x7AD75528ad538B8E28b624033DD3C10F2Ad96a37",
+            "name": "Uniswap",
+            "symbol": "UNI",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "3867184638": {
+        "detail": {
+            "chainId": 5,
+            "address": "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "decimals": 6,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2196162201": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0x2ED3c15eC59CE827c4aBBabfF76d37562558437D",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "decimals": 6,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2893623645": {
+        "detail": {
+            "chainId": 5,
+            "address": "0xC2C527C0CACF457746Bd31B2a698Fe89de2b6d49",
+            "name": "Tether USD",
+            "symbol": "USDT",
+            "decimals": 6,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2392128783": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0x27ee0eB6EbbcbCd4706C3291604AdC2F4384d09F",
+            "name": "Tether USD",
+            "symbol": "USDT",
+            "decimals": 6,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "287128783": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0x0d7f7eb2efD4c97CA8883D197889B17615796871",
+            "name": "Clown",
+            "symbol": "CLOWN",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    }
+    ,
+    "403433757": {
+        "detail": {
+            "chainId": 1,
+            "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+            "name": "Wrapped BTC",
+            "symbol": "WBTC",
+            "decimals": 8,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "4235858193": {
+        "detail": {
+            "chainId": 5,
+            "address": "0xC04B0d3107736C32e19F1c62b2aF67BE61d63a05",
+            "name": "Wrapped BTC",
+            "symbol": "WBTC",
+            "decimals": 8,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2937022946": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0x9155d6bFD923398D77292a2781D3E4acfD3cFFd6",
+            "name": "Wrapped BTC L2",
+            "symbol": "WBTC",
+            "decimals": 8,
+            "tags": [],
+            "coingeckoId": null,
+            "lifiId": null,
+            "listedIn": [
+                "Mantle",
+                "File"
+            ],
+            "logoURI": null,
+            "verify": true
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    },
+    "2354863154": {
+        "detail": {
+            "chainId": 5001,
+            "address": "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000",
+            "name": "Testnet BitDAO",
+            "symbol": "BIT",
+            "decimals": 18,
+            "tags": [],
+            "coingeckoId": "bitdao",
+            "lifiId": null,
+            "listedIn": [
+                "Natives",
+                "Mantle",
+                "File"
+
+            ],
+            "logoURI": "https://assets.coingecko.com/coins/images/17627/small/rI_YptK8.png?1653983088",
+            "verify": false
+        },
+        "priceUSD": null,
+        "balance": "0",
+        "value": "0"
+    }
+}

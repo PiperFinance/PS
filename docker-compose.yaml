@@ -9,12 +9,11 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 8765:8765
+      - 8764:8764
     environment:
-      - PORT=8765
-      - REDIS_URL=redis://redis:6379
-      - TP_SERVER=http://tp:9765  
-
+      - PORT=8764
+      - REDIS_URL=redis://redis:6379/3
+      - TP_SERVER=http://tp:9765
     networks:
       - ps_default
       - tp_default
