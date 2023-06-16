@@ -29,9 +29,9 @@ func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCall
 	ctx, cancel := context.WithTimeout(context.Background(), callTimeout)
 	defer cancel()
 	DefaultW3CallOpts := bind.CallOpts{Context: ctx}
-	for i, _call := range calls {
-		log.Infof("[%d][%s][%s]", i, _call.Target, common.Bytes2Hex(_call.CallData))
-	}
+	// for i, _call := range calls {
+	// 	log.Infof("[%d][%s][%s]", i, _call.Target, common.Bytes2Hex(_call.CallData))
+	// }
 
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
 
