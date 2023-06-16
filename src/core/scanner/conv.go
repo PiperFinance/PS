@@ -37,7 +37,6 @@ func GetChainsTokenBalances(
 	wg.Add(len(chainIds))
 	for _, chainId := range chainIds {
 		_res[chainId] = make(schema.TokenMapping)
-		// TODO - Fill in 0xEEEE
 		go func(chainId schema.ChainId) {
 			defer wg.Done()
 			bal, err := configs.GethClients[chainId].BalanceAt(c, wallet, nil)
