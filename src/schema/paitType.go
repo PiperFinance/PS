@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type PairId Id
@@ -21,13 +22,14 @@ type PairDet struct {
 }
 type Pair struct {
 	Detail PairDet `json:"detail"`
-	//Reserves    []big.Int `json:"reserves"`
-	//TotalSupply big.Int   `json:"totalSupply"`
-	PriceUSD   float64   `json:"priceUSD"`
-	Balance    big.Float `json:"-"`
-	Value      big.Float `json:"-"`
-	BalanceStr string    `json:"balance"`
-	ValueStr   string    `json:"value"`
+	// Reserves    []big.Int `json:"reserves"`
+	// TotalSupply big.Int   `json:"totalSupply"`
+	PriceUSD            float64   `json:"priceUSD"`
+	Balance             big.Float `json:"-"`
+	Value               big.Float `json:"-"`
+	BalanceStr          string    `json:"balance"`
+	BalanceNoDecimalStr string    `json:"balanceNoDecimal"`
+	ValueStr            string    `json:"value"`
 }
 
 type PairMapping map[PairId]Pair
@@ -35,5 +37,6 @@ type PairMapping map[PairId]Pair
 // Copy Returns another Object with same detail
 func (pair Pair) Copy() *Pair {
 	return &Pair{
-		Detail: pair.Detail}
+		Detail: pair.Detail,
+	}
 }

@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type TokenId Id
@@ -23,12 +24,13 @@ type TokenDet struct {
 }
 
 type Token struct {
-	Detail     TokenDet  `json:"detail"`
-	PriceUSD   float64   `json:"priceUSD"`
-	Balance    big.Float `json:"-"`
-	Value      big.Float `json:"-"`
-	BalanceStr string    `json:"balance"`
-	ValueStr   string    `json:"value"`
+	Detail              TokenDet  `json:"detail"`
+	PriceUSD            float64   `json:"priceUSD"`
+	Balance             big.Float `json:"-"`
+	Value               big.Float `json:"-"`
+	BalanceStr          string    `json:"balance"`
+	BalanceNoDecimalStr string    `json:"balanceNoDecimal"`
+	ValueStr            string    `json:"value"`
 }
 
 type TokenMapping map[TokenId]Token
@@ -36,7 +38,8 @@ type TokenMapping map[TokenId]Token
 // Copy Only copies the detail bit
 func (token Token) Copy() *Token {
 	return &Token{
-		Detail: token.Detail}
+		Detail: token.Detail,
+	}
 }
 
 //func (tokenMapping TokenMapping) copy(src TokenMapping) TokenMapping {

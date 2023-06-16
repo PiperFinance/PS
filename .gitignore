@@ -18,3 +18,4 @@
 .vscode/
 gin-bin
 data/
+__debug_bin

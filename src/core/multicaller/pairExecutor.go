@@ -65,6 +65,7 @@ func balancePairResultParser(wallet common.Address, result map[schema.ChainId]sc
 		// Pair Balance
 		decimal := configs.DecimalPowTen(_pair.Detail.Decimals)
 		b := new(big.Float).SetInt(call.ParsedCallRes)
+		_pair.BalanceNoDecimalStr = b.String()
 		b = b.Quo(b, new(big.Float).SetInt(decimal))
 		if b.IsInf() {
 			log.Errorf("[INF] @ (%d,%s) ::: cnResp  %s ", _pair.Detail.Decimals, _pair.Detail.Address, call.ParsedCallRes)
