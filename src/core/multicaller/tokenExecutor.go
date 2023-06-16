@@ -67,7 +67,7 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 		// Token Balance
 		decimal := configs.DecimalPowTen(_token.Detail.Decimals)
 		b := new(big.Float).SetInt(call.ParsedCallRes)
-		_token.BalanceNoDecimalStr = b.String()
+		_token.BalanceNoDecimalStr = call.ParsedCallRes.String()
 		b = b.Quo(b, new(big.Float).SetInt(decimal))
 		if b.IsInf() {
 			log.Errorf("[INF] @ (%d,%s) ::: cnResp  %s ", _token.Detail.Decimals, _token.Detail.Address, call.ParsedCallRes)

@@ -65,13 +65,13 @@ func balancePairResultParser(wallet common.Address, result map[schema.ChainId]sc
 		// Pair Balance
 		decimal := configs.DecimalPowTen(_pair.Detail.Decimals)
 		b := new(big.Float).SetInt(call.ParsedCallRes)
-		_pair.BalanceNoDecimalStr = b.String()
 		b = b.Quo(b, new(big.Float).SetInt(decimal))
 		if b.IsInf() {
 			log.Errorf("[INF] @ (%d,%s) ::: cnResp  %s ", _pair.Detail.Decimals, _pair.Detail.Address, call.ParsedCallRes)
 		}
 		_pair.Balance = *b
 		_pair.BalanceStr = b.String()
+		_pair.BalanceNoDecimalStr = call.ParsedCallRes.String()
 
 		if _pair.PriceUSD != 0 {
 			v := new(big.Float)
