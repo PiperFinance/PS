@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	log "github.com/sirupsen/logrus"
 
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
@@ -65,24 +64,8 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 		_token := configs.ChainTokens(chainId)[_tokenId].Copy()
 
 		// Token Balance
-		decimal := configs.DecimalPowTen(_token.Detail.Decimals)
-		b := new(big.Float).SetInt(call.ParsedCallRes)
-		_token.BalanceNoDecimalStr = call.ParsedCallRes.String()
-		b = b.Quo(b, new(big.Float).SetInt(decimal))
-		if b.IsInf() {
-			log.Errorf("[INF] @ (%d,%s) ::: cnResp  %s ", _token.Detail.Decimals, _token.Detail.Address, call.ParsedCallRes)
-		}
-		_token.Balance = *b
-		_token.BalanceStr = b.String()
+		utils.MustParseBal(call.ParsedCallRes, _token)
 
-		if _token.PriceUSD != 0 {
-			v := new(big.Float)
-			v.Copy(b)
-			v.Mul(v, big.NewFloat(_token.PriceUSD))
-
-			_token.Value = *v
-			_token.ValueStr = v.String()
-		}
 		result[chainId][_tokenId] = *_token
 	}
 	_ = wallet

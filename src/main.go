@@ -2,20 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
-	"strconv"
-	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
 	"portfolio/configs"
-	"portfolio/core/filters"
-	"portfolio/core/multicaller"
-	"portfolio/schema"
+	"portfolio/views"
 )
 
 func init() {
@@ -37,6 +31,7 @@ func init() {
 }
 
 func main() {
+	configs.LoadConfig()
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	config := cors.DefaultConfig()
@@ -45,120 +40,24 @@ func main() {
 	router.Use(cors.New(config))
 
 	//// info
-	router.GET("pair", allPairs)
-	router.GET("chain", allChains)
-	router.GET("tokens", allTokens)
-	router.GET(":chainId/tokens", chainTokens)
+	router.GET("pair", views.AllPairs)
+	router.GET("chain", views.AllChains)
+	router.GET("tokens", views.AllTokens)
+	router.GET(":chainId/tokens", views.ChainTokens)
 	//// balances
 	// TODO - must remove this in favour of versioned endpoints !
-	router.GET("tokens/balance", getAddressTokensBalanceUnsafe)
-	router.GET("pairs/balance", getAddressPairsBalanceUnsafe)
+	router.GET("tokens/balance", views.TokensBalanceUnsafe)
+	router.GET("pairs/balance", views.PairsBalanceUnsafe)
 
-	router.GET("/v1/tokens/balance", getAddressTokensBalanceUnsafe)
-	router.GET("/v1/tokens/balance/safe", getAddressTokensBalance)
-	router.GET("/v1/pairs/balance/", getAddressPairsBalanceUnsafe)
-	router.GET("/v1/pairs/balance/safe", getAddressPairsBalance)
+	router.GET("/v1/tokens/balance", views.TokensBalanceUnsafe)
+	router.GET("/v1/tokens/balance/safe", views.TokensBalance)
+	router.GET("/v1/pairs/balance/", views.PairsBalanceUnsafe)
+	router.GET("/v1/pairs/balance/safe", views.PairsBalance)
+
+	router.GET("/v2/tokens/balance", views.TokensBalanceFromScanner)
 
 	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func allChains(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs.Networks)
-}
-
-func allTokens(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs.AllChainsTokens())
-}
-
-func allPairs(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, configs.AllChainsPairs())
-}
-
-func chainTokens(c *gin.Context) {
-	_chainId, err := strconv.ParseInt(c.Query("chainId"), 10, 32)
-	if err != nil {
-		log.Error(err)
-	}
-	chainId := schema.ChainId(_chainId)
-	c.IndentedJSON(http.StatusOK, configs.ChainTokens(chainId))
-}
-
-func getAddressTokensBalanceUnsafe(c *gin.Context) {
-	// WALLETS
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	walletsQP := common.HexToAddress(_wallet)
-
-	chainIds := filters.QueryChainIds(c)
-	if len(chainIds) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	_res := multicaller.GetChainsTokenBalancesUnsafe(chainIds, walletsQP)
-
-	c.IndentedJSON(http.StatusOK, _res)
-}
-
-func getAddressTokensBalance(c *gin.Context) {
-	// WALLETS
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	walletsQP := common.HexToAddress(_wallet)
-
-	chainIds := filters.QueryChainIds(c)
-	if len(chainIds) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	// _res := multicaller.GetChainsTokenBalances(chainIds, walletsQP)
-	_res := multicaller.GetChainsTokenBalances(chainIds, walletsQP, 2*time.Minute)
-
-	c.IndentedJSON(http.StatusOK, _res)
-}
-
-func getAddressPairsBalanceUnsafe(c *gin.Context) {
-	// WALLETS
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	walletsQP := common.HexToAddress(_wallet)
-
-	chainIds := filters.QueryChainIds(c)
-	if len(chainIds) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	_res := multicaller.GetChainsPairBalancesUnsafe(chainIds, walletsQP)
-
-	c.IndentedJSON(http.StatusOK, _res)
-}
-
-func getAddressPairsBalance(c *gin.Context) {
-	// WALLETS
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	walletsQP := common.HexToAddress(_wallet)
-
-	chainIds := filters.QueryChainIds(c)
-	if len(chainIds) == 0 {
-		c.IndentedJSON(http.StatusOK, nil)
-		return
-	}
-	_res := multicaller.GetChainsPairBalances(chainIds, walletsQP, 2*time.Minute)
-
-	c.IndentedJSON(http.StatusOK, _res)
 }

@@ -3,25 +3,25 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"portfolio/contracts/MulticallContract"
-	"portfolio/schema"
 	"sync"
 	"time"
+
+	Multicall "portfolio/contracts/MulticallContract"
+	"portfolio/schema"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
-	onceForEthClient     sync.Once
-	onceForMultiCall     sync.Once
 	onceForMainNet       sync.Once
 	Networks             = make([]schema.Network, 0)
 	MULTICALL_V3_ADDRESS = common.HexToAddress("0xca11bde05977b3631167028862be2a173976ca11")
-	gethClients          = make(map[schema.ChainId]*ethclient.Client, 10)
+	GethClients          = make(map[schema.ChainId]*ethclient.Client, 10)
 	multiCallInstances   = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
 	ChainIds             = make([]schema.ChainId, 0)
 	chainsUrl            = "https://github.com/PiperFinance/CD/blob/main/chains/mainnet.json?raw=true"
@@ -30,7 +30,6 @@ var (
 
 func init() {
 	onceForMainNet.Do(func() {
-
 		// Load Tokens ...
 
 		var byteValue []byte
@@ -69,7 +68,7 @@ func init() {
 			if err != nil {
 				log.Errorf("Client Connection Error : %s  @ chainId: %d", err, chainId)
 			} else {
-				gethClients[chainId] = client
+				GethClients[chainId] = client
 				contractInstance, err := Multicall.NewMulticallCaller(MULTICALL_V3_ADDRESS, client)
 				if err != nil {
 					log.Errorf("Contract Instance Creation Error : %s @ chainID :%d", err, chainId)
@@ -80,9 +79,11 @@ func init() {
 		}
 	})
 }
+
 func ChainContextTimeOut(id schema.ChainId) time.Duration {
 	return time.Millisecond * 5450
 }
+
 func ChainMultiCall(id schema.ChainId) *Multicall.MulticallCaller {
 	return multiCallInstances[id]
 }

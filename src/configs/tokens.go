@@ -10,13 +10,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/robfig/cron/v3"
+	log "github.com/sirupsen/logrus"
 
 	"portfolio/schema"
-
-	"github.com/ethereum/go-ethereum/common"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -25,6 +24,8 @@ var (
 	// CD chain Tokens URL
 	allTokensArray       = make([]schema.Token, 0)
 	allTokens            = make(schema.TokenMapping)
+	ValueTokenIds        = make(map[schema.ChainId]schema.TokenId)
+	ValueTokens          = make(map[schema.ChainId]schema.Token)
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
 	NULL_TOKEN_ADDRESS   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	NATIVE_TOKEN_ADDRESS = common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE")
@@ -77,6 +78,10 @@ func init() {
 			}
 			chainTokens[chainId][tokenId] = token
 			allTokensArray = append(allTokensArray, token)
+			if token.Detail.Address == common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+				ValueTokenIds[chainId] = tokenId
+				ValueTokens[chainId] = token
+			}
 		}
 	})
 	cr := cron.New()
@@ -84,7 +89,7 @@ func init() {
 	if err != nil {
 		log.Error(err)
 	} else {
-		log.Infof("Started priceUpdaterJobId [%s] @ %s", priceUpdaterJobId, time.Now())
+		log.Infof("Started priceUpdaterJobId [%d] @ %+v", priceUpdaterJobId, time.Now())
 	}
 	cr.Start()
 	_TpServer, ok := os.LookupEnv("TP_SERVER")
@@ -116,7 +121,7 @@ func priceUpdater() {
 	}
 	for _, chainId := range _chains.Value() {
 		for tokenId := range ChainTokens(chainId) {
-			go func(id schema.TokenId, chainId schema.ChainId) {
+			go func(id schema.TokenId) {
 				var tokenPrice float64
 				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TpServer, id))
 				if err != nil {
@@ -129,11 +134,11 @@ func priceUpdater() {
 					} else if parseErr != nil {
 						log.Error(parseErr)
 					} else {
-						log.Infof("ID : %s  => %s", id, tokenPrice)
+						log.Infof("ID : %d  => %f", id, tokenPrice)
 					}
 
 				}
-			}(tokenId, chainId)
+			}(tokenId)
 		}
 	}
 	priceUpdaterLock = false
@@ -150,6 +155,7 @@ func AllChainsTokensArray() []schema.Token {
 func ChainTokens(id schema.ChainId) schema.TokenMapping {
 	_chains := accessedChains.Get("ChainsToUpdate")
 	chains := make([]schema.ChainId, 1)
+	_ = chains
 	if _chains == nil {
 		chains = make([]schema.ChainId, 1)
 		chains[0] = id
