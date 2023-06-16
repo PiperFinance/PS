@@ -46,7 +46,8 @@ func main() {
 	router.GET(":chainId/tokens", views.ChainTokens)
 	//// balances
 	// TODO - must remove this in favour of versioned endpoints !
-	router.GET("tokens/balance", views.TokensBalanceUnsafe)
+	// router.GET("tokens/balance", views.TokensBalanceUnsafe)
+	router.GET("tokens/balance", views.TokensBalanceFromScanner)
 	router.GET("pairs/balance", views.PairsBalanceUnsafe)
 
 	router.GET("/v1/tokens/balance", views.TokensBalanceUnsafe)
