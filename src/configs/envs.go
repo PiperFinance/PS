@@ -39,8 +39,10 @@ type config struct {
 	MainnetDir                   string        `env:"MAINNET_DIR" envDefault:"/data/mainnets.json"`
 	DEV                          bool          `env:"DEV_DEBUG" envDefault:"false"`
 	LimitUsers                   bool          `env:"LIMIT_USERS" envDefault:"false"`
+	UserAppURL                   url.URL       `env:"UA_URL" envDefault:"http://154.49.243.32:4500"`
 	BlockScannerURL              url.URL       `env:"BS_URL" envDefault:"http://154.49.243.32:6001"`
-	UserAppUrl                   url.URL       `env:"USER_APP_URL" envDefault:"http://154.49.243.32:4500"`
+	PortfolioScannerURL          url.URL       `env:"PS_URL" envDefault:"http://154.49.243.32:8765"`
+	TokenPriceURL                url.URL       `env:"TP_URL" envDefault:"http://154.49.243.32:8765"`
 	TokenListUrl                 url.URL       `env:"TOKEN_LIST_URL" envDefault:"https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"`
 	TokensDir                    string        `env:"TOKEN_LIST_DIR" envDefault:"data/all_tokens.json"`
 	ZapLogLevel                  zapcore.Level

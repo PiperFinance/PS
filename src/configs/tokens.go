@@ -92,7 +92,7 @@ func init() {
 		log.Infof("Started priceUpdaterJobId [%d] @ %+v", priceUpdaterJobId, time.Now())
 	}
 	cr.Start()
-	_TpServer, ok := os.LookupEnv("TP_SERVER")
+	_TpServer, ok := os.LookupEnv("TP_URL")
 	if !ok {
 		_TpServer = "http://localhost:3001"
 	}
