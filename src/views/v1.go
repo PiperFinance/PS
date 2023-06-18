@@ -3,7 +3,6 @@ package views
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
@@ -73,7 +72,7 @@ func TokensBalance(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res, err := multicaller.GetChainsTokenBalances(chainIds, walletsQP, 30*time.Second) // TODO - dynamic !!!
+	_res, err := multicaller.GetChainsTokenBalances(chainIds, walletsQP) // TODO - dynamic !!!
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -119,7 +118,7 @@ func PairsBalance(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res, err := multicaller.GetChainsPairBalances(chainIds, walletsQP, 2*time.Minute)
+	_res, err := multicaller.GetChainsPairBalances(chainIds, walletsQP)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

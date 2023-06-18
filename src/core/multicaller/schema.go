@@ -30,6 +30,7 @@ type ChunkedCallOpts struct {
 	W3CallOpt  *bind.CallOpts
 	ChunkSize  int
 	MaxTimeout time.Duration
+	MaxRetries int
 }
 
 type BalanceCall struct {

@@ -17,7 +17,7 @@ import (
 var PairBalanceCallOpt ChunkedCallOpts
 
 func init() {
-	PairBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 250}
+	PairBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 100, MaxRetries: 3, MaxTimeout: 1 * time.Minute}
 }
 
 // getPairBalances Wallet balance based on given pair ( Faster if chunks is used)
@@ -29,7 +29,6 @@ func getPairBalances(
 	pairs schema.PairMapping,
 	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int],
-	callTimeout time.Duration,
 ) uint64 {
 	allCalls := genPairBalanceCalls(pairs, wallet)
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
@@ -41,7 +40,7 @@ func getPairBalances(
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
-			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel, callTimeout)
+			go executeWithRetries(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel, callOpts.MaxTimeout, callOpts.MaxRetries)
 		}
 	}
 
@@ -90,7 +89,6 @@ func balancePairResultParser(wallet common.Address, result map[schema.ChainId]sc
 func GetChainsPairBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address,
-	callTimeout time.Duration,
 ) (map[schema.ChainId]schema.PairMapping, error) {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.PairMapping)
@@ -110,7 +108,7 @@ func GetChainsPairBalances(
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getPairBalances(PairBalanceCallOpt, chainId, _multicall, _pairs, wallet, chunkedResultChannel, callTimeout))
+			getPairBalances(PairBalanceCallOpt, chainId, _multicall, _pairs, wallet, chunkedResultChannel))
 	}
 
 	for chunkCalls := range chunkedResultChannel {

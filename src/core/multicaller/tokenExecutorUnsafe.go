@@ -3,6 +3,7 @@ package multicaller
 import (
 	"math/big"
 	"sync/atomic"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -18,7 +19,9 @@ func GetChainsTokenBalancesUnsafe(
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 
 	var totalChunkCount uint64
-	// totalChunkCount = 0
+	callOpt := TokenBalanceCallOpt
+	callOpt.MaxTimeout = 10 * time.Second
+	callOpt.MaxRetries = 1
 
 	for _, chainId := range chainIds {
 		_tokens := configs.ChainTokens(chainId)
@@ -32,7 +35,7 @@ func GetChainsTokenBalancesUnsafe(
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getTokenBalances(TokenBalanceCallOpt, chainId, _multicall, _tokens, wallet, chunkedResultChannel, configs.ChainContextTimeOut(chainId)))
+			getTokenBalances(callOpt, chainId, _multicall, _tokens, wallet, chunkedResultChannel))
 	}
 	if totalChunkCount == 0 {
 		return _res, nil

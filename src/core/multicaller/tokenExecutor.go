@@ -16,7 +16,7 @@ import (
 var TokenBalanceCallOpt ChunkedCallOpts
 
 func init() {
-	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 10}
+	TokenBalanceCallOpt = ChunkedCallOpts{W3CallOpt: nil, ChunkSize: 10, MaxRetries: 3, MaxTimeout: 1 * time.Minute}
 }
 
 // getTokenBalances Wallet balance based on given token ( Faster if chunks is used)
@@ -28,7 +28,6 @@ func getTokenBalances(
 	tokens schema.TokenMapping,
 	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int],
-	callTimeout time.Duration,
 ) uint64 {
 	allCalls := genTokenBalanceCalls(tokens, wallet)
 	chunkedCalls := utils.Chunks[ChunkCall[*big.Int]](allCalls, callOpts.ChunkSize)
@@ -40,7 +39,7 @@ func getTokenBalances(
 				chunkedResultChannel <- cachedChunkCalls.Value()
 			}()
 		} else {
-			go execute(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel, callTimeout)
+			go executeWithRetries(i, id, wallet, multiCaller, indexCalls, chunkedResultChannel, callOpts.MaxTimeout, callOpts.MaxRetries)
 		}
 	}
 	return uint64(len(chunkedCalls))
@@ -74,7 +73,6 @@ func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]s
 func GetChainsTokenBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address,
-	callTimeout time.Duration,
 ) (map[schema.ChainId]schema.TokenMapping, error) {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.TokenMapping)
@@ -93,7 +91,7 @@ func GetChainsTokenBalances(
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getTokenBalances(TokenBalanceCallOpt, chainId, _multicall, _tokens, wallet, chunkedResultChannel, callTimeout))
+			getTokenBalances(TokenBalanceCallOpt, chainId, _multicall, _tokens, wallet, chunkedResultChannel))
 	}
 	if totalChunkCount == 0 {
 		return _res, nil

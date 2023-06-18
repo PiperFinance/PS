@@ -31,6 +31,11 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 }
 
+type A struct {
+	A int
+	B string
+}
+
 func main() {
 	configs.LoadConfig()
 	configs.LoadLogger()
