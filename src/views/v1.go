@@ -50,7 +50,11 @@ func TokensBalanceUnsafe(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res := multicaller.GetChainsTokenBalancesUnsafe(chainIds, walletsQP)
+	_res, err := multicaller.GetChainsTokenBalancesUnsafe(chainIds, walletsQP)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, _res)
 }
@@ -69,8 +73,11 @@ func TokensBalance(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	// _res := multicaller.GetChainsTokenBalances(chainIds, walletsQP)
-	_res := multicaller.GetChainsTokenBalances(chainIds, walletsQP, 30*time.Second) // TODO - dynamic !!!
+	_res, err := multicaller.GetChainsTokenBalances(chainIds, walletsQP, 30*time.Second) // TODO - dynamic !!!
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, _res)
 }
@@ -89,7 +96,11 @@ func PairsBalanceUnsafe(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res := multicaller.GetChainsPairBalancesUnsafe(chainIds, walletsQP)
+	_res, err := multicaller.GetChainsPairBalancesUnsafe(chainIds, walletsQP)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, _res)
 }
@@ -108,7 +119,11 @@ func PairsBalance(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
-	_res := multicaller.GetChainsPairBalances(chainIds, walletsQP, 2*time.Minute)
+	_res, err := multicaller.GetChainsPairBalances(chainIds, walletsQP, 2*time.Minute)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, _res)
 }

@@ -3,6 +3,7 @@ package multicaller
 import (
 	"fmt"
 	"math/big"
+
 	"portfolio/configs"
 	Multicall "portfolio/contracts/MulticallContract"
 	"portfolio/schema"
@@ -15,7 +16,8 @@ func BalanceOf(call BalanceCall) Multicall.Multicall3Call3 {
 	return Multicall.Multicall3Call3{
 		Target:       call.contractAddress,
 		AllowFailure: true,
-		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", ERC20_BALANCE_OF_FUNC, call.walletAddress.Hash().String()[2:]))}
+		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", ERC20_BALANCE_OF_FUNC, call.walletAddress.Hash().String()[2:])),
+	}
 }
 
 // NativeBalance Uses getEthBalance(address) method in multicall contract to get user's native balance
@@ -23,7 +25,8 @@ func NativeBalance(call BalanceCall) Multicall.Multicall3Call3 {
 	return Multicall.Multicall3Call3{
 		Target:       configs.MULTICALL_V3_ADDRESS,
 		AllowFailure: true,
-		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", NATIVE_BALANCE_FUNC, call.walletAddress.Hash().String()[2:]))}
+		CallData:     common.Hex2Bytes(fmt.Sprintf("%s%s", NATIVE_BALANCE_FUNC, call.walletAddress.Hash().String()[2:])),
+	}
 }
 
 // Generates Balance call for given tokens and wallet
@@ -35,13 +38,15 @@ func genGetBalanceCalls(chainId schema.ChainId, contractId schema.Id, contractAd
 			Id:           contractId,
 			ChainId:      chainId, // TODO - Get this as an args
 			Call:         NativeBalance(BalanceCall{contractAddress: contractAdd, walletAddress: wallet}),
-			ResultParser: ParseBigIntResult}
+			ResultParser: ParseBigIntResult,
+		}
 	default:
 		return ChunkCall[*big.Int]{
 			Id:           contractId,
 			ChainId:      chainId, // TODO - Get this as an args
 			Call:         BalanceOf(BalanceCall{contractAddress: contractAdd, walletAddress: wallet}),
-			ResultParser: ParseBigIntResult}
+			ResultParser: ParseBigIntResult,
+		}
 	}
 }
 

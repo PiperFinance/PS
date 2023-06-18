@@ -2,19 +2,20 @@ package configs
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var mongoBackgroundContextOnce sync.Once
 
 var mongoClient *mongo.Client
 
-//mongoUrl : Sample url format is mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
+// mongoUrl : Sample url format is mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
 func mongoUrl() string {
 	mongoURL, ok := os.LookupEnv("MONGO_URL")
 	if !ok {
@@ -33,7 +34,7 @@ func newMongoClient() *mongo.Client {
 	return _mongoClient
 }
 
-//GetMongo Singleton Approach to get mongo connection (Defaults to context.Background)
+// GetMongo Singleton Approach to get mongo connection (Defaults to context.Background)
 func GetMongo() *mongo.Client {
 	mongoBackgroundContextOnce.Do(func() {
 		mongoClient := newMongoClient()

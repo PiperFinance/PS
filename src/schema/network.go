@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"net/url"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Network struct {
@@ -11,9 +12,11 @@ type Network struct {
 		Symbol   string `json:"symbol"`
 		Decimals int    `json:"decimals"`
 	} `json:"nativeCurrency"`
-	ChainId int    `json:"id"`
+	Id      int64  `json:"id"`
+	ChainId int64  `json:"chainId"`
 	Name    string `json:"name"`
 	Network string `json:"network"`
+	Rpc     []RPC  `json:"rpc"`
 	RpcUrls struct {
 		Infura  string `json:"infura"`
 		Default string `json:"default"`
@@ -36,7 +39,11 @@ type Network struct {
 			Url  string `json:"url"`
 		} `json:"public"`
 	} `json:"blockExplorers"`
-	Testnet bool `json:"testnet"`
+	Testnet           bool `json:"testnet"`
+	GoodRpc           []*RPC
+	BadRpc            []*RPC
+	BatchLogMaxHeight int64 `json:"maxGetLogHeight"`  // GetLogs Filter max length can be updated but initial value is set in the mainnet.json
+	MulticallMaxSize  int64 `json:"maxMulticallSize"` // It's kinda obvious :)
 }
 
 type NativeNetworkCurrency struct {
@@ -51,4 +58,10 @@ type NetworkExplorer struct {
 }
 type ENS struct {
 	Registry common.Address `json:"registry"`
+}
+type RPC struct {
+	Url             string `json:"url"`
+	Tracking        string `json:"tracking,omitempty"`
+	TrackingDetails string `json:"trackingDetails,omitempty"`
+	IsOpenSource    bool   `json:"isOpenSource,omitempty"`
 }

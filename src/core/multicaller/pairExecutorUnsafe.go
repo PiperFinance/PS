@@ -13,7 +13,7 @@ import (
 func GetChainsPairBalancesUnsafe(
 	chainIds []schema.ChainId,
 	wallet common.Address,
-) map[schema.ChainId]schema.PairMapping {
+) (map[schema.ChainId]schema.PairMapping, error) {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.PairMapping)
 
@@ -22,14 +22,17 @@ func GetChainsPairBalancesUnsafe(
 
 	for _, chainId := range chainIds {
 		_pairs := configs.ChainPairs(chainId)
-		_multicall := configs.ChainMultiCall(chainId)
+		_multicall, err := configs.ChainMultiCall(chainId)
+		if err != nil {
+			return nil, err
+		}
 
 		if _multicall == nil || _pairs == nil {
 			continue
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getPairBalances(PairBalanceCallOpt, chainId, *_multicall, _pairs, wallet, chunkedResultChannel, configs.ChainContextTimeOut(chainId)))
+			getPairBalances(PairBalanceCallOpt, chainId, _multicall, _pairs, wallet, chunkedResultChannel, configs.ChainContextTimeOut(chainId)))
 	}
 
 	for chunkCalls := range chunkedResultChannel {
@@ -47,5 +50,5 @@ func GetChainsPairBalancesUnsafe(
 
 	close(chunkedResultChannel)
 
-	return _res
+	return _res, nil
 }

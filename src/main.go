@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
 	log "github.com/sirupsen/logrus"
 
 	"portfolio/configs"
@@ -32,6 +33,12 @@ func init() {
 
 func main() {
 	configs.LoadConfig()
+	configs.LoadLogger()
+	configs.LoadCache()
+	configs.LoadMainNets()
+	configs.LoadNetwork()
+	configs.LoadTokens()
+	configs.LoadPairs()
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	config := cors.DefaultConfig()

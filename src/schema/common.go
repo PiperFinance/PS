@@ -2,7 +2,7 @@ package schema
 
 import "github.com/ethereum/go-ethereum/common"
 
-type Id uint32
+type Id string
 
 type TWithAddressAndChain struct {
 	ChainId  ChainId        `json:"chainId"`

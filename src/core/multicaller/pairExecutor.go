@@ -25,7 +25,7 @@ func init() {
 func getPairBalances(
 	callOpts ChunkedCallOpts,
 	id schema.ChainId,
-	multiCaller Multicall.MulticallCaller,
+	multiCaller *Multicall.MulticallCaller,
 	pairs schema.PairMapping,
 	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int],
@@ -91,7 +91,7 @@ func GetChainsPairBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address,
 	callTimeout time.Duration,
-) map[schema.ChainId]schema.PairMapping {
+) (map[schema.ChainId]schema.PairMapping, error) {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.PairMapping)
 
@@ -100,14 +100,17 @@ func GetChainsPairBalances(
 
 	for _, chainId := range chainIds {
 		_pairs := configs.ChainPairs(chainId)
-		_multicall := configs.ChainMultiCall(chainId)
+		_multicall, err := configs.ChainMultiCall(chainId)
+		if err != nil {
+			return nil, err
+		}
 
 		if _multicall == nil || _pairs == nil {
 			continue
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getPairBalances(PairBalanceCallOpt, chainId, *_multicall, _pairs, wallet, chunkedResultChannel, callTimeout))
+			getPairBalances(PairBalanceCallOpt, chainId, _multicall, _pairs, wallet, chunkedResultChannel, callTimeout))
 	}
 
 	for chunkCalls := range chunkedResultChannel {
@@ -125,5 +128,5 @@ func GetChainsPairBalances(
 
 	close(chunkedResultChannel)
 
-	return _res
+	return _res, nil
 }

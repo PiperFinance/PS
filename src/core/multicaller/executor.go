@@ -13,14 +13,7 @@ import (
 	"portfolio/schema"
 )
 
-// func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int]) {
-// 	executeWithTimeout(
-// 		chunkIndex, id, wallet, multiCaller, chunkedCalls,
-// 		chunkChannel,
-// 		configs.ChainContextTimeOut(id))
-// }
-
-func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int], callTimeout time.Duration) {
+func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCaller *Multicall.MulticallCaller, chunkedCalls []ChunkCall[*big.Int], chunkChannel chan []ChunkCall[*big.Int], callTimeout time.Duration) {
 	calls := make([]Multicall.Multicall3Call3, len(chunkedCalls))
 	for i, indexedCall := range chunkedCalls {
 		calls[i] = indexedCall.Call
@@ -32,7 +25,6 @@ func execute(chunkIndex int, id schema.ChainId, wallet common.Address, multiCall
 	// for i, _call := range calls {
 	// 	log.Infof("[%d][%s][%s]", i, _call.Target, common.Bytes2Hex(_call.CallData))
 	// }
-
 	res, err := multiCaller.Aggregate3(&DefaultW3CallOpts, calls)
 
 	cacheKey := ChunkCallsCacheKey{wallet, id, chunkIndex}

@@ -24,7 +24,7 @@ func init() {
 func getTokenBalances(
 	callOpts ChunkedCallOpts,
 	id schema.ChainId,
-	multiCaller Multicall.MulticallCaller,
+	multiCaller *Multicall.MulticallCaller,
 	tokens schema.TokenMapping,
 	wallet common.Address,
 	chunkedResultChannel chan []ChunkCall[*big.Int],
@@ -49,7 +49,7 @@ func getTokenBalances(
 func balanceTokenResultParser(wallet common.Address, result map[schema.ChainId]schema.TokenMapping, chunk []ChunkCall[*big.Int]) {
 	for _, call := range chunk {
 
-		// In case error occurred at rpc level
+		// TODO In case error occurred at rpc level
 		if call.Err != nil {
 		}
 
@@ -75,7 +75,7 @@ func GetChainsTokenBalances(
 	chainIds []schema.ChainId,
 	wallet common.Address,
 	callTimeout time.Duration,
-) map[schema.ChainId]schema.TokenMapping {
+) (map[schema.ChainId]schema.TokenMapping, error) {
 	chunkedResultChannel := make(chan []ChunkCall[*big.Int])
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 
@@ -83,17 +83,20 @@ func GetChainsTokenBalances(
 
 	for _, chainId := range chainIds {
 		_tokens := configs.ChainTokens(chainId)
-		_multicall := configs.ChainMultiCall(chainId)
+		_multicall, err := configs.ChainMultiCall(chainId)
+		if err != nil {
+			return nil, err
+		}
 
 		if _multicall == nil || _tokens == nil {
 			continue
 		}
 		atomic.AddUint64(
 			&totalChunkCount,
-			getTokenBalances(TokenBalanceCallOpt, chainId, *_multicall, _tokens, wallet, chunkedResultChannel, callTimeout))
+			getTokenBalances(TokenBalanceCallOpt, chainId, _multicall, _tokens, wallet, chunkedResultChannel, callTimeout))
 	}
 	if totalChunkCount == 0 {
-		return _res
+		return _res, nil
 	}
 	for chunkCalls := range chunkedResultChannel {
 		if totalChunkCount > 0 {
@@ -107,5 +110,5 @@ func GetChainsTokenBalances(
 
 	close(chunkedResultChannel)
 
-	return _res
+	return _res, nil
 }

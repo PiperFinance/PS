@@ -38,52 +38,51 @@ var (
 	)
 )
 
-func init() {
-	onceForChainTokens.Do(func() {
-		// Load Tokens ...
-		var byteValue []byte
-		if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
-			resp, err := http.Get(tokensUrl)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			byteValue, err = ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Fatalf("HTTPTokenLoader: %s", err)
-			}
-		} else {
-			jsonFile, err := os.Open(tokensDir)
-			defer func(jsonFile *os.File) {
-				err := jsonFile.Close()
-				if err != nil {
-					log.Error(err)
-				}
-			}(jsonFile)
-			if err != nil {
-				log.Fatalf("JSONTokenLoader: %s", err)
-			}
-			byteValue, err = ioutil.ReadAll(jsonFile)
-			if err != nil {
-				log.Fatalf("JSONTokenLoader: %s", err)
-			}
-		}
-		err := json.Unmarshal(byteValue, &allTokens)
+func LoadTokens() {
+	// Load Tokens ...
+	var byteValue []byte
+	if _, err := os.Stat(tokensDir); errors.Is(err, os.ErrNotExist) {
+		resp, err := http.Get(tokensUrl)
 		if err != nil {
-			log.Fatalf("TokenLoader: %s", err)
+			log.Fatalln(err)
 		}
-		for tokenId, token := range allTokens {
-			chainId := token.Detail.ChainId
-			if chainTokens[chainId] == nil {
-				chainTokens[chainId] = make(schema.TokenMapping)
-			}
-			chainTokens[chainId][tokenId] = token
-			allTokensArray = append(allTokensArray, token)
-			if token.Detail.Address == common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
-				ValueTokenIds[chainId] = tokenId
-				ValueTokens[chainId] = token
-			}
+		byteValue, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalf("HTTPTokenLoader: %s", err)
 		}
-	})
+	} else {
+		jsonFile, err := os.Open(tokensDir)
+		defer func(jsonFile *os.File) {
+			err := jsonFile.Close()
+			if err != nil {
+				log.Error(err)
+			}
+		}(jsonFile)
+		if err != nil {
+			log.Fatalf("JSONTokenLoader: %s", err)
+		}
+		byteValue, err = ioutil.ReadAll(jsonFile)
+		if err != nil {
+			log.Fatalf("JSONTokenLoader: %s", err)
+		}
+	}
+	err := json.Unmarshal(byteValue, &allTokens)
+	if err != nil {
+		log.Fatalf("TokenLoader: %s", err)
+	}
+	for tokenId, token := range allTokens {
+		chainId := token.Detail.ChainId
+		if chainTokens[chainId] == nil {
+			chainTokens[chainId] = make(schema.TokenMapping)
+		}
+		chainTokens[chainId][tokenId] = token
+		allTokensArray = append(allTokensArray, token)
+		if token.Detail.Address == common.HexToAddress("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+			ValueTokenIds[chainId] = tokenId
+			ValueTokens[chainId] = token
+		}
+	}
+
 	cr := cron.New()
 	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
 	if err != nil {
@@ -123,7 +122,7 @@ func priceUpdater() {
 		for tokenId := range ChainTokens(chainId) {
 			go func(id schema.TokenId) {
 				var tokenPrice float64
-				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%d", TpServer, id))
+				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%s", TpServer, id))
 				if err != nil {
 					log.Error(err)
 				} else {
@@ -134,7 +133,7 @@ func priceUpdater() {
 					} else if parseErr != nil {
 						log.Error(parseErr)
 					} else {
-						log.Infof("ID : %d  => %f", id, tokenPrice)
+						log.Infof("ID : %s  => %f", id, tokenPrice)
 					}
 
 				}

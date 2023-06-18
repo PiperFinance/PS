@@ -39,7 +39,7 @@ func GetChainsTokenBalances(
 		_res[chainId] = make(schema.TokenMapping)
 		go func(chainId schema.ChainId) {
 			defer wg.Done()
-			bal, err := configs.GethClients[chainId].BalanceAt(c, wallet, nil)
+			bal, err := configs.EthClient(int64(chainId)).BalanceAt(c, wallet, nil)
 			if err != nil {
 				logrus.Errorf("Getting user eth bal on %d :%+v", chainId, err)
 			} else {
@@ -67,8 +67,8 @@ func GetChainsTokenBalances(
 			if err != nil {
 				logrus.Errorf("GetChainsTokenBalances : %+v", err)
 			}
-			fmt.Println(payload)
 			if err := json.Unmarshal(body, &payload); err != nil {
+				resp.Body.Close()
 				return nil, err
 			}
 			resp.Body.Close()
@@ -84,7 +84,7 @@ func GetChainsTokenBalances(
 					}
 					_res[chainId][userBal.TokenId] = token
 				} else {
-					logrus.Warnf("tokenId not found %d", userBal.TokenId)
+					logrus.Warnf("tokenId not found %s", userBal.TokenId)
 				}
 			}
 		} else if err != nil {
