@@ -21,6 +21,7 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 RUN mkdir -p /api
 WORKDIR /api
 COPY --from=builder /api/app .
+ADD https://raw.githubusercontent.com/PiperFinance/CD/main/chains/mainnetV2.json /data/mainnet.json  
 RUN rm -rf /var/bs/log/ | true \ 
     && mkdir -p /var/bs/log/ \ 
     && touch /var/bs/log/err.log \ 

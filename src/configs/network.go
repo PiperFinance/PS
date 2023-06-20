@@ -1,79 +1,128 @@
 package configs
 
-// import (
-// 	"encoding/json"
-// 	"errors"
-// 	"io/ioutil"
-// 	"net/http"
-// 	"os"
-// 	"sync"
-// 	"time"
+import (
+	"context"
+	"sync"
+	"time"
 
-// 	"github.com/ethereum/go-ethereum/ethclient"
-// 	log "github.com/sirupsen/logrus"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 
-// 	Multicall "portfolio/contracts/MulticallContract"
-// 	"portfolio/schema"
-// )
+	Multicall "portfolio/contracts/MulticallContract"
+	"portfolio/schema"
+	"portfolio/utils"
+)
 
-// var (
-// 	onceForMainNet sync.Once
-// 	Networks       = make([]schema.Network, 0)
-// 	// GethClients        = make(map[schema.ChainId]*ethclient.Client, 10)
-// 	multiCallInstances = make(map[schema.ChainId]*Multicall.MulticallCaller, 10)
-// 	ChainIds           = make([]schema.ChainId, 0)
-// 	chainsUrl          = "https://github.com/PiperFinance/CD/blob/main/chains/mainnet.json?raw=true"
-// 	chainsDir          = "data/mainnet.json"
-// )
+var (
+	// EthClient  *ethclient.Client
+	EthClientS           map[int64][]*ethclient.Client
+	selectorMutex        sync.Mutex
+	selectorIndex        map[int64]int
+	clientCount          map[int64]int
+	rpcs                 map[int64][]string
+	MULTICALL_V3_ADDRESS = common.HexToAddress("0xca11bde05977b3631167028862be2a173976ca11")
+	Networks             = make([]schema.Network, 0)
+)
 
-// func init() {
-// 	onceForMainNet.Do(func() {
-// 		// Load Tokens ...
+func LoadNetwork() {
+	selectorMutex = sync.Mutex{}
+	rpcs = make(map[int64][]string, len(Config.SupportedChains))
+	EthClientS = make(map[int64][]*ethclient.Client, len(Config.SupportedChains))
+	clientCount = make(map[int64]int, len(Config.SupportedChains))
+	selectorIndex = make(map[int64]int, len(Config.SupportedChains))
+	for _, net := range SupportedNetworks {
+		rpcs[net.ChainId] = utils.GetNetworkRpcUrls(net.GoodRpc)
+		clientCount[net.ChainId] = len(net.GoodRpc)
+		selectorIndex[net.ChainId] = 0
+		EthClientS[net.ChainId] = make([]*ethclient.Client, len(net.GoodRpc))
+		for i, _rpc := range net.GoodRpc {
 
-// 		var byteValue []byte
-// 		if _, err := os.Stat(chainsDir); errors.Is(err, os.ErrNotExist) {
-// 			resp, err := http.Get(chainsUrl)
-// 			if err != nil {
-// 				log.Fatalln(err)
-// 			}
-// 			byteValue, err = ioutil.ReadAll(resp.Body)
-// 			if err != nil {
-// 				log.Fatalf("HTTPPairLoader: %s", err)
-// 			}
-// 		} else {
-// 			jsonFile, err := os.Open(chainsDir)
-// 			defer func(jsonFile *os.File) {
-// 				err := jsonFile.Close()
-// 				if err != nil {
-// 					log.Error(err)
-// 				}
-// 			}(jsonFile)
-// 			if err != nil {
-// 				log.Fatalf("JSONPairLoader: %s", err)
-// 			}
-// 			byteValue, err = ioutil.ReadAll(jsonFile)
-// 			if err != nil {
-// 				log.Fatalf("JSONPairLoader: %s", err)
-// 			}
-// 		}
-// 		err := json.Unmarshal(byteValue, &Networks)
-// 		if err != nil {
-// 			log.Fatalf("ChainsLoader: %s", err)
-// 		}
-// 		for _, chain := range Networks {
-// 			chainId := schema.ChainId(chain.ChainId)
-// 			client, err := ethclient.Dial(chain.RpcUrls.Default)
-// 			if err != nil {
-// 				log.Errorf("Client Connection Error : %s  @ chainId: %d", err, chainId)
-// 			} else {
-// 				GethClients[chainId] = client
-// 				contractInstance, err := Multicall.NewMulticallCaller(MULTICALL_V3_ADDRESS, client)
-// 				if err != nil {
-// 					log.Errorf("Contract Instance Creation Error : %s @ chainID :%d", err, chainId)
-// 				}
-// 				multiCallInstances[chainId] = contractInstance
-// 				ChainIds = append(ChainIds, chainId)
-// 			}
-// 		}
-// 	})
-// }
+			client, err := ethclient.Dial(_rpc.Url)
+			if err != nil {
+				Logger.Panicf("Client Connection %+v Error : %s  ", _rpc, err)
+			}
+			EthClientS[net.ChainId][i] = client
+		}
+	}
+}
+
+func ChainContextTimeOut(id schema.ChainId) time.Duration {
+	return time.Millisecond * 5450
+}
+
+func ChainMultiCall(id schema.ChainId) (*Multicall.MulticallCaller, error) {
+	contractInstance, err := Multicall.NewMulticallCaller(MULTICALL_V3_ADDRESS, EthClient(int64(id)))
+	if err != nil {
+		// log.Errorf("Contract Instance Creation Error : %s @ chainID :%d", err, id)
+		return nil, err
+	}
+	return contractInstance, nil
+	// multiCallInstances[chainId] = contractInstance
+	// return multiCallInstances[id]
+}
+
+func EthClient(chain int64) *ethclient.Client {
+	cl, _ := EthClientDebug(chain)
+	return cl
+}
+
+func EthClientDebug(chain int64) (*ethclient.Client, string) {
+	defer func() {
+		selectorMutex.Lock()
+		selectorIndex[chain]++
+		if selectorIndex[chain] >= clientCount[chain] {
+			selectorIndex[chain] = 0
+		}
+		selectorMutex.Unlock()
+	}()
+	// TODO - Try to recover panic here !
+	if clients, ok := EthClientS[chain]; ok {
+		if index, ok := selectorIndex[chain]; ok {
+			if len(clients) == 0 {
+				Logger.Errorf("EthCLient Selector : No RPCs found for chain %d", chain)
+			} else {
+				return clients[index], rpcs[chain][index]
+			}
+		}
+	}
+	return nil, ""
+}
+
+// BatchLogMaxHeight staticky returns block height set in mainnet.json !
+func BatchLogMaxHeight(chain int64) uint64 {
+	r := uint64(SupportedNetworks[chain].BatchLogMaxHeight)
+	if r == 0 {
+		// TODO make this dynamic
+		return 1
+	} else {
+		return r
+	}
+}
+
+// BatchLogMaxHeight staticky returns block height set in mainnet.json !
+func MulticallMaxSize(chain int64) uint64 {
+	r := uint64(SupportedNetworks[chain].MulticallMaxSize)
+	if r == 0 {
+		// TODO make this dynamic
+		return 1
+	} else {
+		return r
+	}
+}
+
+func MulticallAddress(chain int64) common.Address {
+	return MULTICALL_V3_ADDRESS
+}
+
+// LatestBlock Last block mines head delay for safe data aggregation (uncle blocks!)
+func LatestBlock(ctx context.Context, chain int64) (uint64, error) {
+	if b, err := EthClient(chain).BlockNumber(ctx); err != nil {
+		return Config.StartingBlockNumber, err
+	} else {
+		return b - Config.BlockHeadDelay, nil
+	}
+}
+
+func NetworkValueAddress(chain int64) common.Address {
+	return MULTICALL_V3_ADDRESS
+}
