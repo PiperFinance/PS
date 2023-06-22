@@ -32,7 +32,7 @@ var (
 	tokensUrl            = "https://github.com/PiperFinance/CD/blob/main/tokens/outVerified/all_tokens.json?raw=true"
 	tokensDir            = "data/all_tokens.json"
 	priceUpdaterLock     = false
-	priceUpdaterTTL      = 2 * time.Minute
+	priceUpdaterTTL      = 1 * time.Minute
 	accessedChains       = ttlcache.New[string, []schema.ChainId](
 		ttlcache.WithTTL[string, []schema.ChainId](15 * time.Second),
 	)
@@ -99,6 +99,7 @@ func LoadTokens() {
 }
 
 func priceUpdater() {
+	// TODO - should be a mutex
 	if priceUpdaterLock {
 		return
 	}
