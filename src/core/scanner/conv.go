@@ -54,8 +54,6 @@ func GetChainsTokenBalances(
 			}
 		}(chainId)
 
-		// url := url.URL{Host: configs.Config.BlockScannerURL.String(), Scheme: "http", Path: "/bal"}
-		// url := url.URL{Host: "localhost:6001", Scheme: "http", Path: "/bal"}
 		url := configs.Config.BlockScannerURL.JoinPath("/bal")
 		q := url.Query()
 		q.Add("chain", fmt.Sprintf("%d", chainId))

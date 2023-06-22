@@ -37,11 +37,12 @@ func ParseBal(bal *big.Int, token *schema.Token) error {
 	}
 	token.Balance = *b
 	token.BalanceStr = b.String()
-	if token.PriceUSD != 0 {
+	z := configs.AllTokens[token.Id()]
+	if z.PriceUSD != 0 {
 		v := new(big.Float)
 		v.Copy(b)
-		v.Mul(v, big.NewFloat(token.PriceUSD))
-
+		v.Mul(v, big.NewFloat(z.PriceUSD))
+		token.PriceUSD = z.PriceUSD
 		token.Value = *v
 		token.ValueStr = v.String()
 	}

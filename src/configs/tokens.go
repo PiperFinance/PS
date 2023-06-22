@@ -3,11 +3,9 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,11 +17,9 @@ import (
 )
 
 var (
-	TpServer           string
-	onceForChainTokens sync.Once
 	// CD chain Tokens URL
 	allTokensArray       = make([]schema.Token, 0)
-	allTokens            = make(schema.TokenMapping)
+	AllTokens            = make(schema.TokenMapping)
 	ValueTokenIds        = make(map[schema.ChainId]schema.TokenId)
 	ValueTokens          = make(map[schema.ChainId]schema.Token)
 	chainTokens          = make(map[schema.ChainId]schema.TokenMapping)
@@ -66,11 +62,11 @@ func LoadTokens() {
 			log.Fatalf("JSONTokenLoader: %s", err)
 		}
 	}
-	err := json.Unmarshal(byteValue, &allTokens)
+	err := json.Unmarshal(byteValue, &AllTokens)
 	if err != nil {
 		log.Fatalf("TokenLoader: %s", err)
 	}
-	for tokenId, token := range allTokens {
+	for tokenId, token := range AllTokens {
 		chainId := token.Detail.ChainId
 		if chainTokens[chainId] == nil {
 			chainTokens[chainId] = make(schema.TokenMapping)
@@ -84,18 +80,13 @@ func LoadTokens() {
 	}
 
 	cr := cron.New()
-	priceUpdaterJobId, err := cr.AddFunc("*/2 * * * *", priceUpdater)
+	priceUpdaterJobId, err := cr.AddFunc("*/1 * * * *", priceUpdater)
 	if err != nil {
 		log.Error(err)
 	} else {
 		log.Infof("Started priceUpdaterJobId [%d] @ %+v", priceUpdaterJobId, time.Now())
 	}
 	cr.Start()
-	_TpServer, ok := os.LookupEnv("TP_URL")
-	if !ok {
-		_TpServer = "http://localhost:3001"
-	}
-	TpServer = _TpServer
 }
 
 func priceUpdater() {
@@ -106,46 +97,33 @@ func priceUpdater() {
 	priceUpdaterLock = true
 
 	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.MaxIdleConns = 5000
-	t.MaxConnsPerHost = 1
-	t.MaxIdleConnsPerHost = 5000
-
 	httpClient := &http.Client{
 		Timeout:   1 * time.Minute,
 		Transport: t,
 	}
+	resp := make(map[schema.TokenId]float64)
+	res, _ := httpClient.Get(Config.TokenPriceURL.JoinPath("/all").String())
 
-	_chains := accessedChains.Get("ChainsToUpdate")
-	if _chains == nil || _chains.IsExpired() {
-		return
-	}
-	for _, chainId := range _chains.Value() {
-		for tokenId := range ChainTokens(chainId) {
-			go func(id schema.TokenId) {
-				var tokenPrice float64
-				res, err := httpClient.Get(fmt.Sprintf("%s?tokenId=%s", TpServer, id))
-				if err != nil {
-					log.Error(err)
-				} else {
-					byteValue, err := ioutil.ReadAll(res.Body)
-					parseErr := json.Unmarshal(byteValue, &tokenPrice)
-					if err != nil {
-						log.Error(err)
-					} else if parseErr != nil {
-						log.Error(parseErr)
-					} else {
-						log.Infof("ID : %s  => %f", id, tokenPrice)
-					}
-
-				}
-			}(tokenId)
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	if err := json.Unmarshal(body, &resp); err != nil {
+		log.Error(err)
+	} else {
+		for tokenId, price := range resp {
+			t, ok := AllTokens[tokenId]
+			if ok {
+				// AllTokens[tokenId].PriceUSD = price
+				t.PriceUSD = price
+				AllTokens[tokenId] = t
+			}
 		}
 	}
+
 	priceUpdaterLock = false
 }
 
 func AllChainsTokens() schema.TokenMapping {
-	return allTokens
+	return AllTokens
 }
 
 func AllChainsTokensArray() []schema.Token {
@@ -153,16 +131,17 @@ func AllChainsTokensArray() []schema.Token {
 }
 
 func ChainTokens(id schema.ChainId) schema.TokenMapping {
-	_chains := accessedChains.Get("ChainsToUpdate")
-	chains := make([]schema.ChainId, 1)
-	_ = chains
-	if _chains == nil {
-		chains = make([]schema.ChainId, 1)
-		chains[0] = id
-	} else {
-		chains = append(_chains.Value(), id)
-	}
-	accessedChains.Set("ChainsToUpdate", chains, priceUpdaterTTL)
-	t := chainTokens[id]
-	return t
+	return chainTokens[id]
+	// _chains := accessedChains.Get("ChainsToUpdate")
+	// chains := make([]schema.ChainId, 1)
+	// _ = chains
+	// if _chains == nil {
+	// 	chains = make([]schema.ChainId, 1)
+	// 	chains[0] = id
+	// } else {
+	// 	chains = append(_chains.Value(), id)
+	// }
+	// accessedChains.Set("ChainsToUpdate", chains, priceUpdaterTTL)
+	// t := chainTokens[id]
+	// return t
 }

@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -33,6 +35,7 @@ type Token struct {
 	ValueStr            string    `json:"value"`
 }
 
+// TODO make this a pointer !
 type TokenMapping map[TokenId]Token
 
 // Copy Only copies the detail bit
@@ -40,6 +43,10 @@ func (token Token) Copy() *Token {
 	return &Token{
 		Detail: token.Detail,
 	}
+}
+
+func (token *Token) Id() TokenId {
+	return TokenId(fmt.Sprintf("%s-%d", strings.ToLower(token.Detail.Address.String()), token.Detail.ChainId))
 }
 
 //func (tokenMapping TokenMapping) copy(src TokenMapping) TokenMapping {
