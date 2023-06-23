@@ -68,6 +68,7 @@ func main() {
 	router.GET("/v1/pairs/balance/safe", views.PairsBalance)
 
 	router.GET("/v2/tokens/balance", views.TokensBalanceFromScanner)
+	router.GET("/v2/tokens/balance/flat", views.TokensBalanceFromScannerFlat)
 
 	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
 	if err != nil {

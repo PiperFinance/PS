@@ -146,11 +146,11 @@
     "colId": "history",
     "containerId": "",
     "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&chainId=1",
-    "url": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0",
+    "url": "http://localhost:3000/v2/tokens/balance/flat?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0",
     "method": "GET",
     "sortNum": 0,
     "created": "2023-06-16T14:13:57.794Z",
-    "modified": "2023-06-22T18:21:00.840Z",
+    "modified": "2023-06-23T07:12:45.970Z",
     "headers": [],
     "params": [
       {

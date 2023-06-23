@@ -103,18 +103,19 @@ func priceUpdater() {
 	}
 	resp := make(map[schema.TokenId]float64)
 	res, _ := httpClient.Get(Config.TokenPriceURL.JoinPath("/all").String())
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-	if err := json.Unmarshal(body, &resp); err != nil {
-		log.Error(err)
-	} else {
-		for tokenId, price := range resp {
-			t, ok := AllTokens[tokenId]
-			if ok {
-				// AllTokens[tokenId].PriceUSD = price
-				t.PriceUSD = price
-				AllTokens[tokenId] = t
+	if res != nil {
+		defer res.Body.Close()
+		body, _ := ioutil.ReadAll(res.Body)
+		if err := json.Unmarshal(body, &resp); err != nil {
+			log.Error(err)
+		} else {
+			for tokenId, price := range resp {
+				t, ok := AllTokens[tokenId]
+				if ok {
+					// AllTokens[tokenId].PriceUSD = price
+					t.PriceUSD = price
+					AllTokens[tokenId] = t
+				}
 			}
 		}
 	}
