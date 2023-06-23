@@ -12,12 +12,18 @@ import (
 )
 
 func TokensBalanceFromScanner(c *gin.Context) {
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
+	walletsQP := c.QueryArray("wallet")
+	wallets := make([]common.Address, 0)
+	if len(walletsQP) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
+	} else {
+		for _, wallet := range walletsQP {
+			if common.IsHexAddress(wallet) {
+				wallets = append(wallets, common.HexToAddress(wallet))
+			}
+		}
 	}
-	walletsQP := common.HexToAddress(_wallet)
 
 	chainIds := filters.QueryChainIds(c)
 	if len(chainIds) == 0 {
@@ -25,7 +31,7 @@ func TokensBalanceFromScanner(c *gin.Context) {
 		return
 	}
 
-	_res, err := scanner.GetChainsTokenBalances(c, chainIds, walletsQP)
+	_res, err := scanner.GetChainsTokenBalances(c, chainIds, wallets)
 	if err != nil {
 		c.Error(err)
 	} else {
@@ -34,19 +40,25 @@ func TokensBalanceFromScanner(c *gin.Context) {
 }
 
 func TokensBalanceFromScannerFlat(c *gin.Context) {
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
+	walletsQP := c.QueryArray("wallet")
+	wallets := make([]common.Address, 0)
+	if len(walletsQP) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
+	} else {
+		for _, wallet := range walletsQP {
+			if common.IsHexAddress(wallet) {
+				wallets = append(wallets, common.HexToAddress(wallet))
+			}
+		}
 	}
-	walletsQP := common.HexToAddress(_wallet)
 	chainIds := filters.QueryChainIds(c)
 	if len(chainIds) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
 
-	_res, err := scanner.GetChainsTokenBalances(c, chainIds, walletsQP)
+	_res, err := scanner.GetChainsTokenBalances(c, chainIds, wallets)
 	res := make([]schema.Token, 0)
 	for chain, tokens := range _res {
 		_ = chain
@@ -64,19 +76,25 @@ func TokensBalanceFromScannerFlat(c *gin.Context) {
 }
 
 func TokensBalanceFromScannerFlat100(c *gin.Context) {
-	_wallet := c.Query("wallet")
-	if len(_wallet) == 0 {
+	walletsQP := c.QueryArray("wallet")
+	wallets := make([]common.Address, 0)
+	if len(walletsQP) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
+	} else {
+		for _, wallet := range walletsQP {
+			if common.IsHexAddress(wallet) {
+				wallets = append(wallets, common.HexToAddress(wallet))
+			}
+		}
 	}
-	walletsQP := common.HexToAddress(_wallet)
 	chainIds := filters.QueryChainIds(c)
 	if len(chainIds) == 0 {
 		c.IndentedJSON(http.StatusOK, nil)
 		return
 	}
 
-	_res, err := scanner.GetChainsTokenBalances(c, chainIds, walletsQP)
+	_res, err := scanner.GetChainsTokenBalances(c, chainIds, wallets)
 	res := make([]schema.Token, 0)
 	for chain, tokens := range _res {
 		_ = chain

@@ -28,7 +28,7 @@ func queryBS() {
 func GetChainsTokenBalances(
 	c context.Context,
 	chainIds []schema.ChainId,
-	wallet common.Address,
+	wallets []common.Address,
 ) (map[schema.ChainId]schema.TokenMapping, error) {
 	_res := make(map[schema.ChainId]schema.TokenMapping)
 	// TODO - change this
@@ -39,16 +39,18 @@ func GetChainsTokenBalances(
 		_res[chainId] = make(schema.TokenMapping)
 		go func(chainId schema.ChainId) {
 			defer wg.Done()
-			bal, err := configs.EthClient(int64(chainId)).BalanceAt(c, wallet, nil)
-			if err != nil {
-				logrus.Errorf("Getting user eth bal on %d :%+v", chainId, err)
-			} else {
-				if bal != nil && bal.Cmp(configs.ZERO()) > 0 {
-					tokenId, ok := configs.ValueTokenIds[chainId]
-					if ok {
-						token := configs.ValueTokens[chainId]
-						utils.MustParseBal(bal, &token)
-						_res[chainId][tokenId] = token
+			for _, wallet := range wallets {
+				bal, err := configs.EthClient(int64(chainId)).BalanceAt(c, wallet, nil)
+				if err != nil {
+					logrus.Errorf("Getting user eth bal on %d :%+v", chainId, err)
+				} else {
+					if bal != nil && bal.Cmp(configs.ZERO()) > 0 {
+						tokenId, ok := configs.ValueTokenIds[chainId]
+						if ok {
+							token := configs.ValueTokens[chainId]
+							utils.MustParseBal(bal, &token)
+							_res[chainId][tokenId] = token
+						}
 					}
 				}
 			}
@@ -57,7 +59,9 @@ func GetChainsTokenBalances(
 		url := configs.Config.BlockScannerURL.JoinPath("/bal")
 		q := url.Query()
 		q.Add("chain", fmt.Sprintf("%d", chainId))
-		q.Add("user", wallet.String())
+		for _, wallet := range wallets {
+			q.Add("user", wallet.String())
+		}
 		url.RawQuery = q.Encode()
 		if resp, err := http.Get(url.String()); err == nil && resp.StatusCode == 200 {
 			payload := schema.UserBalanceResp{}
