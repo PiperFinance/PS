@@ -47,7 +47,15 @@ func GetChainsTokenBalances(
 					if bal != nil && bal.Cmp(configs.ZERO()) > 0 {
 						tokenId, ok := configs.ValueTokenIds[chainId]
 						if ok {
-							token := configs.ValueTokens[chainId]
+							token, _ok := _res[chainId][tokenId]
+							if !_ok {
+								token = configs.ValueTokens[chainId]
+								_res[chainId][tokenId] = token
+							}
+							if token.BalanceDetail == nil {
+								token.BalanceDetail = make(map[common.Address]string)
+							}
+							token.BalanceDetail[wallet] = bal.String()
 							utils.MustParseBal(bal, &token)
 							_res[chainId][tokenId] = token
 						}
@@ -84,6 +92,10 @@ func GetChainsTokenBalances(
 					if err := utils.ParseBalAndParse(userBal.Balance, &token); err != nil {
 						return nil, err
 					}
+					if token.BalanceDetail == nil {
+						token.BalanceDetail = make(map[common.Address]string)
+					}
+					token.BalanceDetail[userBal.User] = userBal.Balance
 					_res[chainId][userBal.TokenId] = token
 				} else {
 					logrus.Warnf("tokenId not found %s", userBal.TokenId)

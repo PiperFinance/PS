@@ -26,13 +26,14 @@ type TokenDet struct {
 }
 
 type Token struct {
-	Detail              TokenDet  `json:"detail"`
-	PriceUSD            float64   `json:"priceUSD"`
-	Balance             big.Float `json:"-"`
-	Value               big.Float `json:"-"`
-	BalanceStr          string    `json:"balance"`
-	BalanceNoDecimalStr string    `json:"balanceNoDecimal"`
-	ValueStr            string    `json:"value"`
+	Detail              TokenDet                  `json:"detail"`
+	PriceUSD            float64                   `json:"priceUSD"`
+	Balance             big.Float                 `json:"-"`
+	Value               big.Float                 `json:"-"`
+	BalanceStr          string                    `json:"balance"`
+	BalanceDetail       map[common.Address]string `json:"balanceDetail"`
+	BalanceNoDecimalStr string                    `json:"balanceNoDecimal"`
+	ValueStr            string                    `json:"value"`
 }
 
 // TODO make this a pointer !

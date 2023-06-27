@@ -28,9 +28,18 @@ func ParseBalAndParse(bal string, token *schema.Token) error {
 }
 
 func ParseBal(bal *big.Int, token *schema.Token) error {
+	prevBal := new(big.Float)
+	prevBal.SetString(token.BalanceNoDecimalStr)
+
 	_decimal := configs.DecimalPowTen(token.Detail.Decimals)
+
 	b := new(big.Float).SetInt(bal)
-	token.BalanceNoDecimalStr = bal.String()
+
+	b.Add(b, prevBal)
+	i, _ := b.Int(big.NewInt(0))
+
+	token.BalanceNoDecimalStr = i.String()
+
 	b = b.Quo(b, new(big.Float).SetInt(_decimal))
 	if b.IsInf() {
 		return fmt.Errorf("inf bal")
