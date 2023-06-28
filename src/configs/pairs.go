@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	allPairs      = make(schema.PairMapping)
+	AllPairs      = make(schema.PairMapping)
 	chainPairs    = make(map[schema.ChainId]schema.PairMapping)
 	allPairsArray = make([]schema.Pair, 0)
 	pairsUrl      = "https://raw.githubusercontent.com/PiperFinance/CD/main/pair/all_pairs.json"
@@ -48,12 +48,12 @@ func LoadPairs() {
 			log.Fatalf("JSONPairLoader: %s", err)
 		}
 	}
-	err := json.Unmarshal(byteValue, &allPairs)
+	err := json.Unmarshal(byteValue, &AllPairs)
 	if err != nil {
 		log.Fatalf("PairLoader: %s", err)
 	}
 
-	for pairId, pair := range allPairs {
+	for pairId, pair := range AllPairs {
 		chainId := pair.Detail.ChainId
 		if chainPairs[chainId] == nil {
 			chainPairs[chainId] = make(schema.PairMapping)
@@ -64,11 +64,11 @@ func LoadPairs() {
 }
 
 func AllChainsPairs() schema.PairMapping {
-	return allPairs
+	return AllPairs
 }
 
 func AllChainsPairsArray() schema.PairMapping {
-	return allPairs
+	return AllPairs
 }
 
 func ChainPairs(id schema.ChainId) schema.PairMapping {

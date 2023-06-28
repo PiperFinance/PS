@@ -25,7 +25,7 @@ func ONE() *big.Int {
 func MIN_BALANCE() *big.Int {
 	// NOTE - Change this if you can't see your balance
 	// This is without decimals
-	return big.NewInt(100)
+	return big.NewInt(1)
 }
 
 func DecimalPowTen(decimals schema.Decimals) *big.Int {

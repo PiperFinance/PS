@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -65,13 +64,17 @@ func main() {
 	router.GET("/v1/tokens/balance", views.TokensBalanceUnsafe)
 	router.GET("/v1/tokens/balance/safe", views.TokensBalance)
 	router.GET("/v1/pairs/balance/", views.PairsBalanceUnsafe)
+	router.GET("/v1/pairs/balance/flat", views.PairsBalanceUnsafe)
 	router.GET("/v1/pairs/balance/safe", views.PairsBalance)
+
+	router.GET("/v2/pairs/balance", views.PairsBalanceFromScanner)
+	router.GET("/v2/pairs/balance/flat", views.PairsBalanceFromScannerFlat)
 
 	router.GET("/v2/tokens/balance", views.TokensBalanceFromScanner)
 	router.GET("/v2/tokens/balance/flat", views.TokensBalanceFromScannerFlat)
 	router.GET("/v2/tokens/balance/flat/test", views.TokensBalanceFromScannerFlat100)
 
-	err := router.Run(fmt.Sprintf("0.0.0.0:%s", configs.GetAppPort()))
+	err := router.Run(configs.Config.ApiUrl)
 	if err != nil {
 		log.Fatal(err)
 	}

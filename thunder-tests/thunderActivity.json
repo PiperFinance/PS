@@ -1,266 +1,264 @@
 [
-  {
-    "_id": "5ccc55cd-fa89-4bb0-b5a5-3c6bf0ac204a",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://154.49.243.32:8764",
-    "url": "http://154.49.243.32:8764/v1/tokens/balance/safe?chainId=250&chainId=137&chainId=56&wallet=0x0000000000016a723d0d576Df7DC79EC149ac760",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T04:52:58.860Z",
-    "modified": "2023-06-16T05:05:31.315Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "chainId",
-        "value": "250",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "137",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "56",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x0000000000016a723d0d576Df7DC79EC149ac760",
-        "isPath": false
-      }
-    ],
-    "tests": []
-  },
-  {
-    "_id": "c8b9c923-f673-4746-bce6-04775110954e",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://154.49.243.32:8764/56/tokens",
-    "url": "http://154.49.243.32:8764/56/tokens",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T04:57:13.806Z",
-    "modified": "2023-06-16T04:57:13.806Z",
-    "headers": [],
-    "params": [],
-    "tests": []
-  },
-  {
-    "_id": "3a7f64d7-f50e-4c13-91c6-ad066dd7ba73",
-    "colId": "history",
-    "containerId": "",
-    "name": "https://localhost:3000/v2/tokens/balance",
-    "url": "https://localhost:3000/v2/tokens/balance",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T14:04:30.492Z",
-    "modified": "2023-06-16T14:04:30.492Z",
-    "headers": [],
-    "params": [],
-    "tests": []
-  },
-  {
-    "_id": "cecb1230-6ef7-46f9-be7c-26a96b4c4659",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://localhost:3000/v2/tokens/balance",
-    "url": "http://localhost:3000/v2/tokens/balance",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T14:04:40.026Z",
-    "modified": "2023-06-16T14:04:40.026Z",
-    "headers": [],
-    "params": [],
-    "tests": []
-  },
-  {
-    "_id": "c3f5a709-bcce-4141-9499-c48f6dc51756",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
-    "url": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T14:05:36.989Z",
-    "modified": "2023-06-16T14:05:36.989Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "chainId",
-        "value": "250",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "56",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
-        "isPath": false
-      }
-    ],
-    "tests": []
-  },
-  {
-    "_id": "c2e1672c-c438-47db-95e3-51f0b95724d5",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0&chainId=1",
-    "url": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0&chainId=1",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T14:13:19.571Z",
-    "modified": "2023-06-16T14:13:19.571Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "chainId",
-        "value": "250",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "56",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "1",
-        "isPath": false
-      }
-    ],
-    "tests": []
-  },
-  {
-    "_id": "9fdcb183-0b6e-4a4d-b38a-c48f8d269815",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&chainId=1",
-    "url": "http://localhost:3000/v2/tokens/balance/flat?wallet=0x593A8483F4Fb3AE0c185821eaEA9f65b204D30ce&chainId=1&wallet=0x04B14A3F5f5f9036E17C89836371cfd31df59992",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-16T14:13:57.794Z",
-    "modified": "2023-06-27T16:35:22.814Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "chainId",
-        "value": "250",
-        "isDisabled": true,
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "56",
-        "isDisabled": true,
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x593A8483F4Fb3AE0c185821eaEA9f65b204D30ce",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "1",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x04B14A3F5f5f9036E17C89836371cfd31df59992",
-        "isPath": false
-      }
-    ],
-    "tests": []
-  },
-  {
-    "_id": "950bff03-1fff-4bf7-b639-5b35d04edb50",
-    "colId": "history",
-    "containerId": "",
-    "name": "http://localhost:3000/v2/tokens/balance/flat?&chainId=1&chainId=10&chainId=56&chainId=100&chainId=137&chainId=250&chainId=1284&chainId=43114&chainId=42161&chainId=1313161554&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&wallet=0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D&wallet=0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
-    "url": "http://localhost:3000/v2/tokens/balance/flat?&chainId=1&chainId=10&chainId=56&chainId=100&chainId=137&chainId=250&chainId=1284&chainId=43114&chainId=42161&chainId=1313161554&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&wallet=0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D&wallet=0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
-    "method": "GET",
-    "sortNum": 0,
-    "created": "2023-06-27T15:41:14.628Z",
-    "modified": "2023-06-27T15:41:14.628Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "chainId",
-        "value": "1",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "10",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "56",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "100",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "137",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "250",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "1284",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "43114",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "42161",
-        "isPath": false
-      },
-      {
-        "name": "chainId",
-        "value": "1313161554",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0xB49F17514D6F340d7bcdFfC47526C9A3713697e0",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D",
-        "isPath": false
-      },
-      {
-        "name": "wallet",
-        "value": "0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
-        "isPath": false
-      }
-    ],
-    "tests": []
-  }
+    {
+        "_id": "5ccc55cd-fa89-4bb0-b5a5-3c6bf0ac204a",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://154.49.243.32:8764",
+        "url": "http://154.49.243.32:8764/v1/tokens/balance/safe?chainId=250&chainId=137&chainId=56&wallet=0x0000000000016a723d0d576Df7DC79EC149ac760",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T04:52:58.860Z",
+        "modified": "2023-06-16T05:05:31.315Z",
+        "headers": [],
+        "params": [
+            {
+                "name": "chainId",
+                "value": "250",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "137",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "56",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0x0000000000016a723d0d576Df7DC79EC149ac760",
+                "isPath": false
+            }
+        ],
+        "tests": []
+    },
+    {
+        "_id": "c8b9c923-f673-4746-bce6-04775110954e",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://154.49.243.32:8764/56/tokens",
+        "url": "http://154.49.243.32:8764/56/tokens",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T04:57:13.806Z",
+        "modified": "2023-06-16T04:57:13.806Z",
+        "headers": [],
+        "params": [],
+        "tests": []
+    },
+    {
+        "_id": "3a7f64d7-f50e-4c13-91c6-ad066dd7ba73",
+        "colId": "history",
+        "containerId": "",
+        "name": "https://localhost:3000/v2/tokens/balance",
+        "url": "https://localhost:3000/v2/tokens/balance",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T14:04:30.492Z",
+        "modified": "2023-06-16T14:04:30.492Z",
+        "headers": [],
+        "params": [],
+        "tests": []
+    },
+    {
+        "_id": "cecb1230-6ef7-46f9-be7c-26a96b4c4659",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3000/v2/tokens/balance",
+        "url": "http://localhost:3000/v2/tokens/balance",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T14:04:40.026Z",
+        "modified": "2023-06-16T14:04:40.026Z",
+        "headers": [],
+        "params": [],
+        "tests": []
+    },
+    {
+        "_id": "c3f5a709-bcce-4141-9499-c48f6dc51756",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
+        "url": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T14:05:36.989Z",
+        "modified": "2023-06-16T14:05:36.989Z",
+        "headers": [],
+        "params": [
+            {
+                "name": "chainId",
+                "value": "250",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "56",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
+                "isPath": false
+            }
+        ],
+        "tests": []
+    },
+    {
+        "_id": "c2e1672c-c438-47db-95e3-51f0b95724d5",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0&chainId=1",
+        "url": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0x0000000000CC1FFB95df1486af6dacb26D6D1Af0&chainId=1",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T14:13:19.571Z",
+        "modified": "2023-06-16T14:13:19.571Z",
+        "headers": [],
+        "params": [
+            {
+                "name": "chainId",
+                "value": "250",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "56",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0x0000000000CC1FFB95df1486af6dacb26D6D1Af0",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "1",
+                "isPath": false
+            }
+        ],
+        "tests": []
+    },
+    {
+        "_id": "9fdcb183-0b6e-4a4d-b38a-c48f8d269815",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3000/v2/tokens/balance?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&chainId=1",
+        "url": "http://localhost:6001/v2/pairs/balance/flat?chainId=250&chainId=56&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&chainId=1&wallet=0xF977814e90dA44bFA03b6295A0616a897441aceC",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-16T14:13:57.794Z",
+        "modified": "2023-06-28T19:17:31.871Z",
+        "headers": [],
+        "params": [
+            {
+                "name": "chainId",
+                "value": "250",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "56",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0xB49F17514D6F340d7bcdFfC47526C9A3713697e0",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "1",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0xF977814e90dA44bFA03b6295A0616a897441aceC",
+                "isPath": false
+            }
+        ],
+        "tests": []
+    },
+    {
+        "_id": "950bff03-1fff-4bf7-b639-5b35d04edb50",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3000/v2/tokens/balance/flat?&chainId=1&chainId=10&chainId=56&chainId=100&chainId=137&chainId=250&chainId=1284&chainId=43114&chainId=42161&chainId=1313161554&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&wallet=0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D&wallet=0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
+        "url": "http://localhost:3000/v2/tokens/balance/flat?&chainId=1&chainId=10&chainId=56&chainId=100&chainId=137&chainId=250&chainId=1284&chainId=43114&chainId=42161&chainId=1313161554&wallet=0xB49F17514D6F340d7bcdFfC47526C9A3713697e0&wallet=0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D&wallet=0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-06-27T15:41:14.628Z",
+        "modified": "2023-06-27T15:41:14.628Z",
+        "headers": [],
+        "params": [
+            {
+                "name": "chainId",
+                "value": "1",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "10",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "56",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "100",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "137",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "250",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "1284",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "43114",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "42161",
+                "isPath": false
+            },
+            {
+                "name": "chainId",
+                "value": "1313161554",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0xB49F17514D6F340d7bcdFfC47526C9A3713697e0",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0x90d9b9CC1BFB77d96f9a44731159DdbcA824C63D",
+                "isPath": false
+            },
+            {
+                "name": "wallet",
+                "value": "0x31E5d6a65Ae9E247125b41Ea54a33C3Cc8Be8848",
+                "isPath": false
+            }
+        ],
+        "tests": []
+    }
 ]

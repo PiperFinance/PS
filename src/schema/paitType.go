@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -24,12 +26,13 @@ type Pair struct {
 	Detail PairDet `json:"detail"`
 	// Reserves    []big.Int `json:"reserves"`
 	// TotalSupply big.Int   `json:"totalSupply"`
-	PriceUSD            float64   `json:"priceUSD"`
-	Balance             big.Float `json:"-"`
-	Value               big.Float `json:"-"`
-	BalanceStr          string    `json:"balance"`
-	BalanceNoDecimalStr string    `json:"balanceNoDecimal"`
-	ValueStr            string    `json:"value"`
+	PriceUSD            float64                   `json:"priceUSD"`
+	Balance             big.Float                 `json:"-"`
+	Value               big.Float                 `json:"-"`
+	BalanceStr          string                    `json:"balance"`
+	BalanceDetail       map[common.Address]string `json:"balanceDetail"`
+	BalanceNoDecimalStr string                    `json:"balanceNoDecimal"`
+	ValueStr            string                    `json:"value"`
 }
 
 type PairMapping map[PairId]Pair
@@ -39,4 +42,8 @@ func (pair Pair) Copy() *Pair {
 	return &Pair{
 		Detail: pair.Detail,
 	}
+}
+
+func (pair *Pair) Id() PairId {
+	return PairId(fmt.Sprintf("%s-%d", strings.ToLower(pair.Detail.Address.String()), pair.Detail.ChainId))
 }
